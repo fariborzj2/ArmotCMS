@@ -1,0 +1,477 @@
+
+import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory } from './types';
+
+export const TRANSLATIONS: Translation = {
+  // General
+  welcome: { fa: 'خوش آمدید', en: 'Welcome' },
+  dashboard: { fa: 'داشبورد', en: 'Dashboard' },
+  install: { fa: 'نصب', en: 'Install' },
+  settings: { fa: 'تنظیمات', en: 'Settings' },
+  logout: { fa: 'خروج', en: 'Logout' },
+  login: { fa: 'ورود', en: 'Login' },
+  username: { fa: 'نام کاربری', en: 'Username' },
+  password: { fa: 'رمز عبور', en: 'Password' },
+  email: { fa: 'ایمیل', en: 'Email' },
+  database: { fa: 'پایگاه داده', en: 'Database' },
+  connect: { fa: 'اتصال', en: 'Connect' },
+  continue: { fa: 'ادامه', en: 'Continue' },
+  back: { fa: 'بازگشت', en: 'Back' },
+  plugins: { fa: 'افزونه‌ها', en: 'Plugins' },
+  themes: { fa: 'قالب‌ها', en: 'Themes' },
+  users: { fa: 'کاربران', en: 'Users' },
+  pages: { fa: 'صفحات', en: 'Pages' },
+  media: { fa: 'رسانه‌ها', en: 'Media' },
+  menus: { fa: 'منوها', en: 'Menus' },
+  inbox: { fa: 'صندوق پیام', en: 'Inbox' },
+  status: { fa: 'وضعیت', en: 'Status' },
+  active: { fa: 'فعال', en: 'Active' },
+  inactive: { fa: 'غیرفعال', en: 'Inactive' },
+  actions: { fa: 'عملیات', en: 'Actions' },
+  delete: { fa: 'حذف', en: 'Delete' },
+  edit: { fa: 'ویرایش', en: 'Edit' },
+  add_user: { fa: 'افزودن کاربر', en: 'Add User' },
+  edit_user: { fa: 'ویرایش کاربر', en: 'Edit User' },
+  add_page: { fa: 'افزودن صفحه', en: 'Add Page' },
+  upload_file: { fa: 'بارگذاری فایل', en: 'Upload File' },
+  role: { fa: 'نقش', en: 'Role' },
+  save: { fa: 'ذخیره', en: 'Save' },
+  cancel: { fa: 'لغو', en: 'Cancel' },
+  installing: { fa: 'در حال نصب...', en: 'Installing...' },
+  success: { fa: 'موفقیت آمیز', en: 'Success' },
+  error: { fa: 'خطا', en: 'Error' },
+  
+  // Navigation Categories
+  nav_content: { fa: 'مدیریت محتوا', en: 'Content' },
+  nav_engagement: { fa: 'تعاملات', en: 'Engagement' },
+  nav_design: { fa: 'ظاهر و قالب', en: 'Appearance' },
+  nav_system: { fa: 'سیستم', en: 'System' },
+
+  // User Fields
+  full_name: { fa: 'نام کامل', en: 'Full Name' },
+  mobile: { fa: 'شماره موبایل', en: 'Mobile Number' },
+  bio: { fa: 'بیوگرافی (معرفی)', en: 'Bio' },
+  avatar: { fa: 'تصویر پروفایل', en: 'Profile Image' },
+  
+  // Blog
+  blog: { fa: 'وبلاگ', en: 'Blog' },
+  posts: { fa: 'نوشته‌ها', en: 'Posts' },
+  categories: { fa: 'دسته‌بندی‌ها', en: 'Categories' },
+  tags: { fa: 'برچسب‌ها', en: 'Tags' },
+  tags_placeholder: { fa: 'تایپ کنید و اینتر یا کاما بزنید...', en: 'Type and hit Enter or Comma...' },
+  add_post: { fa: 'افزودن نوشته', en: 'Add Post' },
+  add_category: { fa: 'افزودن دسته‌بندی', en: 'Add Category' },
+  category: { fa: 'دسته‌بندی', en: 'Category' },
+  read_more: { fa: 'ادامه مطلب', en: 'Read More' },
+  by: { fa: 'توسط', en: 'By' },
+  related_posts: { fa: 'مطالب مرتبط', en: 'Related Posts' },
+  author_profile: { fa: 'پروفایل نویسنده', en: 'Author Profile' },
+  
+  // Blog Settings & FAQs
+  post_settings: { fa: 'تنظیمات مطلب', en: 'Post Settings' },
+  meta_title: { fa: 'عنوان متا (SEO)', en: 'Meta Title' },
+  meta_desc: { fa: 'توضیحات متا (SEO)', en: 'Meta Description' },
+  keywords: { fa: 'کلمات کلیدی', en: 'Keywords' },
+  publish_date: { fa: 'تاریخ انتشار', en: 'Publish Date' },
+  schema_type: { fa: 'نوع اسکیما', en: 'Schema Type' },
+  faqs: { fa: 'سوالات متداول', en: 'FAQs' },
+  add_faq: { fa: 'افزودن سوال', en: 'Add FAQ' },
+  question: { fa: 'سوال', en: 'Question' },
+  answer: { fa: 'پاسخ', en: 'Answer' },
+  keywords_hint: { fa: 'با اینتر یا کاما جدا کنید', en: 'Separate with Enter or comma' },
+  persian_date: { fa: 'تاریخ شمسی', en: 'Persian Date' },
+
+  // Profile
+  profile: { fa: 'پروفایل من', en: 'My Profile' },
+  update_profile: { fa: 'بروزرسانی پروفایل', en: 'Update Profile' },
+  change_password: { fa: 'تغییر رمز عبور', en: 'Change Password' },
+  new_password: { fa: 'رمز عبور جدید', en: 'New Password' },
+  confirm_password: { fa: 'تکرار رمز عبور', en: 'Confirm Password' },
+  
+  // Content
+  title: { fa: 'عنوان', en: 'Title' },
+  slug: { fa: 'آدرس (Slug)', en: 'Slug' },
+  content: { fa: 'محتوا', en: 'Content' },
+  featured_image: { fa: 'تصویر شاخص', en: 'Featured Image' },
+  select_media: { fa: 'انتخاب رسانه', en: 'Select Media' },
+  published: { fa: 'منتشر شده', en: 'Published' },
+  draft: { fa: 'پیش‌نویس', en: 'Draft' },
+  view: { fa: 'مشاهده', en: 'View' },
+  editor_bold: { fa: 'ضخیم', en: 'Bold' },
+  editor_italic: { fa: 'کج', en: 'Italic' },
+  editor_h2: { fa: 'تیتر ۲', en: 'H2' },
+  editor_h3: { fa: 'تیتر ۳', en: 'H3' },
+  editor_ul: { fa: 'لیست', en: 'List' },
+  excerpt: { fa: 'چکیده', en: 'Excerpt' },
+  
+  // Search & Comments
+  search: { fa: 'جستجو', en: 'Search' },
+  search_placeholder: { fa: 'جستجو در سایت...', en: 'Search site...' },
+  search_results: { fa: 'نتایج جستجو', en: 'Search Results' },
+  no_results: { fa: 'نتیجه‌ای یافت نشد', en: 'No results found' },
+  comments: { fa: 'نظرات', en: 'Comments' },
+  comments_manager: { fa: 'مدیریت نظرات', en: 'Comments Manager' },
+  leave_comment: { fa: 'نظر خود را بنویسید', en: 'Leave a comment' },
+  submit: { fa: 'ارسال', en: 'Submit' },
+  no_comments: { fa: 'اولین نفر باشید که نظر می‌دهید!', en: 'Be the first to comment!' },
+  recent_comments: { fa: 'آخرین نظرات', en: 'Recent Comments' },
+  author: { fa: 'نویسنده', en: 'Author' },
+  date: { fa: 'تاریخ', en: 'Date' },
+  on_page: { fa: 'در صفحه', en: 'On Page' },
+  approve: { fa: 'تایید', en: 'Approve' },
+  unapprove: { fa: 'عدم تایید', en: 'Unapprove' },
+  spam: { fa: 'اسپم', en: 'Spam' },
+  reply: { fa: 'پاسخ', en: 'Reply' },
+  pending: { fa: 'در انتظار', en: 'Pending' },
+  approved: { fa: 'تایید شده', en: 'Approved' },
+  rejected: { fa: 'رد شده', en: 'Rejected' },
+  comment_moderation_msg: { fa: 'دیدگاه شما با موفقیت ثبت شد و پس از تایید نمایش داده می‌شود.', en: 'Your comment has been submitted and will appear after moderation.' },
+
+  // Inbox
+  new_messages: { fa: 'پیام‌های جدید', en: 'New Messages' },
+  mark_read: { fa: 'علامت‌گذاری به عنوان خوانده شده', en: 'Mark as Read' },
+  no_messages: { fa: 'پیامی وجود ندارد', en: 'No messages' },
+  sender: { fa: 'فرستنده', en: 'Sender' },
+
+  // Installer
+  installer_title: { fa: 'نصب کننده آرموت', en: 'Armot Installer' },
+  step_db: { fa: 'تنظیمات دیتابیس', en: 'Database Setup' },
+  step_admin: { fa: 'ساخت مدیر', en: 'Create Admin' },
+  step_finish: { fa: 'پایان', en: 'Finish' },
+  db_host: { fa: 'آدرس هاست', en: 'DB Host' },
+  db_name: { fa: 'نام دیتابیس', en: 'DB Name' },
+  db_user: { fa: 'نام کاربری دیتابیس', en: 'DB User' },
+  db_pass: { fa: 'رمز عبور دیتابیس', en: 'DB Password' },
+  
+  // Dashboard & Tools
+  total_visits: { fa: 'بازدید کل', en: 'Total Visits' },
+  active_users: { fa: 'کاربران آنلاین', en: 'Active Users' },
+  server_load: { fa: 'بار سرور', en: 'Server Load' },
+  total_pages: { fa: 'تعداد صفحات', en: 'Total Pages' },
+  total_files: { fa: 'تعداد فایل‌ها', en: 'Total Files' },
+  active_plugins: { fa: 'افزونه‌های فعال', en: 'Active Plugins' },
+  activity_log: { fa: 'گزارش فعالیت‌ها', en: 'Activity Log' },
+  tools: { fa: 'ابزارها', en: 'Tools' },
+  system_tools: { fa: 'ابزارهای سیستم', en: 'System Tools' },
+  backup_restore: { fa: 'پشتیبان‌گیری و بازیابی', en: 'Backup & Restore' },
+  download_backup: { fa: 'دانلود نسخه پشتیبان', en: 'Download Backup' },
+  restore_backup: { fa: 'بازیابی نسخه پشتیبان', en: 'Restore Backup' },
+  recent_activity: { fa: 'فعالیت‌های اخیر', en: 'Recent Activity' },
+  
+  // Plugin Manager
+  plugin_manager: { fa: 'مدیریت افزونه‌ها', en: 'Plugin Manager' },
+  upload_plugin: { fa: 'بارگذاری افزونه', en: 'Upload Plugin' },
+  
+  // Theme Manager
+  theme_manager: { fa: 'مدیریت قالب', en: 'Theme Manager' },
+  frontend_theme: { fa: 'قالب سایت', en: 'Frontend Theme' },
+  admin_theme: { fa: 'قالب مدیریت', en: 'Admin Theme' },
+  
+  // Settings Tabs
+  tab_general: { fa: 'عمومی', en: 'General' },
+  tab_contact: { fa: 'اطلاعات تماس', en: 'Contact Info' },
+  tab_seo: { fa: 'سئو و بهینه‌سازی', en: 'SEO' },
+  tab_advanced: { fa: 'پیشرفته', en: 'Advanced' },
+
+  // Settings Fields & Hints
+  general_settings: { fa: 'تنظیمات عمومی', en: 'General Settings' },
+  site_name: { fa: 'نام سایت', en: 'Site Name' },
+  hint_site_name: { fa: 'این نام در هدر سایت و عنوان صفحات نمایش داده می‌شود.', en: 'Displayed in the header and page titles.' },
+  site_desc: { fa: 'توضیحات سایت', en: 'Site Description' },
+  hint_site_desc: { fa: 'توضیح کوتاهی درباره سایت شما که برای سئو استفاده می‌شود.', en: 'A short description used for SEO and meta tags.' },
+  maintenance_mode: { fa: 'حالت تعمیرات', en: 'Maintenance Mode' },
+  hint_maintenance_mode: { fa: 'در صورت فعال بودن، سایت برای کاربران عادی در دسترس نخواهد بود.', en: 'If enabled, the public site will be inaccessible to non-admin users.' },
+  
+  contact_email: { fa: 'ایمیل تماس', en: 'Contact Email' },
+  hint_contact_email: { fa: 'ایمیلی که در فرم تماس با ما و فوتر نمایش داده می‌شود.', en: 'Displayed on the contact page and footer.' },
+  contact_phone: { fa: 'شماره تماس', en: 'Contact Phone' },
+  hint_contact_phone: { fa: 'شماره تماسی که برای پشتیبانی نمایش داده می‌شود.', en: 'Phone number displayed for support inquiries.' },
+  contact_address: { fa: 'آدرس', en: 'Address' },
+  hint_contact_address: { fa: 'آدرس فیزیکی دفتر یا شرکت.', en: 'Physical address of the office or company.' },
+
+  seo_separator: { fa: 'جداکننده عنوان', en: 'Title Separator' },
+  hint_seo_separator: { fa: 'کاراکتری که بین عنوان صفحه و نام سایت قرار می‌گیرد (مثال: | یا -).', en: 'Character between page title and site name (e.g. | or -).' },
+  enable_sitemap: { fa: 'فعال‌سازی نقشه سایت', en: 'Enable Sitemap' },
+  hint_enable_sitemap: { fa: 'تولید خودکار فایل sitemap.xml برای موتورهای جستجو.', en: 'Automatically generate sitemap.xml for search engines.' },
+  view_sitemap: { fa: 'مشاهده نقشه سایت', en: 'View Sitemap' },
+
+  cache_settings: { fa: 'تنظیمات کش', en: 'Cache Settings' },
+  cache_driver: { fa: 'درایور کش', en: 'Cache Driver' },
+  hint_cache_driver: { fa: 'روش ذخیره‌سازی کش برای افزایش سرعت بارگذاری.', en: 'Storage method for caching to improve load times.' },
+  clear_cache: { fa: 'پاکسازی کش', en: 'Clear Cache' },
+  hint_clear_cache: { fa: 'حذف تمام فایل‌های کش شده سیستم.', en: 'Remove all system cached files.' },
+
+  // Menu Manager
+  menu_manager: { fa: 'مدیریت منوها', en: 'Menu Manager' },
+  add_menu_item: { fa: 'افزودن آیتم منو', en: 'Add Menu Item' },
+  label_fa: { fa: 'عنوان (فارسی)', en: 'Label (Persian)' },
+  label_en: { fa: 'عنوان (انگلیسی)', en: 'Label (English)' },
+  url: { fa: 'آدرس (URL)', en: 'URL' },
+  order: { fa: 'ترتیب', en: 'Order' },
+  location: { fa: 'مکان', en: 'Location' },
+  header: { fa: 'هدر (بالا)', en: 'Header' },
+  footer: { fa: 'فوتر (پایین)', en: 'Footer' },
+
+  // Public Pages
+  about_us: { fa: 'درباره ما', en: 'About Us' },
+  about_desc: { fa: 'با آرموت سی‌ام‌اس و ماموریت ما برای متحول کردن مدیریت محتوا بیشتر آشنا شوید.', en: 'Learn more about ArmotCms and our mission to revolutionize content management.' },
+  contact_us: { fa: 'تماس با ما', en: 'Contact Us' },
+  contact_desc: { fa: 'برای پشتیبانی، فروش یا هرگونه سوال دیگر با ما در تماس باشید.', en: 'Get in touch with us for support, sales, or any other inquiries.' },
+  send_message: { fa: 'ارسال پیام', en: 'Send Message' },
+  message: { fa: 'پیام', en: 'Message' },
+  name: { fa: 'نام', en: 'Name' },
+  page_not_found: { fa: 'صفحه مورد نظر یافت نشد', en: 'Page Not Found' },
+  go_home: { fa: 'بازگشت به خانه', en: 'Go Home' },
+  terms_conditions: { fa: 'قوانین و مقررات', en: 'Terms & Conditions' },
+  faq: { fa: 'سوالات متداول', en: 'FAQ' },
+  frequently_asked_questions: { fa: 'سوالات پرتکرار', en: 'Frequently Asked Questions' },
+  last_updated: { fa: 'آخرین بروزرسانی', en: 'Last Updated' },
+  hero_title: { fa: 'آینده توسعه سیستم‌های مدیریت محتوا', en: 'The Future of CMS Development' },
+  hero_subtitle: { fa: 'آرموت سی‌ام‌اس یک سیستم مدیریت محتوای با کارایی بالا و مبتنی بر افزونه است که برای مقیاس‌پذیری و سهولت استفاده ساخته شده است.', en: 'ArmotCms is a high-performance, plugin-based content management system built for scalability and ease of use.' },
+  get_started: { fa: 'شروع کنید', en: 'Get Started' },
+  documentation: { fa: 'مستندات', en: 'Documentation' },
+  modular_design: { fa: 'طراحی ماژولار', en: 'Modular Design' },
+  modular_desc: { fa: 'عملکرد را با معماری قدرتمند افزونه‌ها که به تمام جنبه‌های هسته متصل می‌شود، گسترش دهید.', en: 'Extend functionality with a powerful plugin architecture that hooks into every aspect of the core.' },
+  enterprise_security: { fa: 'امنیت سازمانی', en: 'Enterprise Security' },
+  security_desc: { fa: 'حفاظت داخلی در برابر تهدیدات رایج با کنترل دسترسی مبتنی بر نقش و احراز هویت امن.', en: 'Built-in protection against common threats with role-based access control and secure authentication.' },
+  lightning_fast: { fa: 'سرعت صاعقه', en: 'Lightning Fast' },
+  fast_desc: { fa: 'بهینه‌شده برای سرعت با کش داخلی، بارگذاری تنبل و ویژگی‌های عملکردی مدرن.', en: 'Optimized for speed with built-in caching, lazy loading, and modern React 18 performance features.' },
+
+  // Maintenance
+  maintenance_title: { fa: 'سایت در حال بروزرسانی است', en: 'Site Under Maintenance' },
+  maintenance_desc: { fa: 'به زودی برمی‌گردیم. از شکیبایی شما سپاسگزاریم.', en: 'We will be back shortly. Thank you for your patience.' },
+
+  // SEO
+  seo_title: { fa: 'عنوان سئو', en: 'SEO Title' },
+  seo_desc: { fa: 'توضیحات متا', en: 'Meta Description' },
+  
+  // Table & Pagination
+  prev: { fa: 'قبلی', en: 'Prev' },
+  next: { fa: 'بعدی', en: 'Next' },
+  page: { fa: 'صفحه', en: 'Page' },
+  of: { fa: 'از', en: 'of' },
+  total_items: { fa: 'تعداد کل', en: 'Total items' },
+  search_placeholder_admin: { fa: 'جستجو در لیست...', en: 'Search list...' },
+  access_denied: { fa: 'دسترسی غیرمجاز', en: 'Access Denied' },
+  access_denied_msg: { fa: 'شما اجازه دسترسی به این صفحه را ندارید.', en: 'You do not have permission to access this page.' },
+};
+
+export const MOCK_PLUGINS: Plugin[] = [
+  {
+    id: 'seo-pro',
+    name: 'سئو پیشرفته آرموت',
+    description: 'ابزارهای پیشرفته سئو، نقشه سایت و اسکیما.',
+    version: '1.2.0',
+    author: 'تیم آرموت',
+    active: true,
+    installed: true,
+    type: 'core',
+  },
+  {
+    id: 'security-pack',
+    name: 'سپر امنیتی',
+    description: 'فایروال، حفاظت از ورود و جلوگیری از حملات.',
+    version: '2.0.1',
+    author: 'جامعه کاربری',
+    active: false,
+    installed: true,
+    type: 'extension',
+  },
+  {
+    id: 'cache-booster',
+    name: 'لایت اسپید کش',
+    description: 'ادغام سیستم کش پرسرعت.',
+    version: '1.0.5',
+    author: 'تیم آرموت',
+    active: true,
+    installed: true,
+    type: 'core',
+  },
+  {
+    id: 'analytics-lite',
+    name: 'آمارگیر ساده',
+    description: 'ردیابی بازدیدکنندگان با تمرکز بر حریم خصوصی.',
+    version: '0.9.0',
+    author: 'توسعه‌دهنده',
+    active: false,
+    installed: true,
+    type: 'extension',
+  },
+  {
+    id: 'comments-plus',
+    name: 'مدیریت نظرات پلاس',
+    description: 'افزودن بخش نظرات به تمام صفحات داینامیک.',
+    version: '1.1.0',
+    author: 'تیم آرموت',
+    active: true,
+    installed: true,
+    type: 'extension',
+  },
+  {
+    id: 'armot-blog',
+    name: 'سیستم وبلاگ آرموت',
+    description: 'سیستم وبلاگ‌دهی کامل با دسته‌بندی و برچسب.',
+    version: '1.0.0',
+    author: 'تیم آرموت',
+    active: true,
+    installed: true,
+    type: 'core',
+  }
+];
+
+export const MOCK_PAGES: Page[] = [
+  {
+    id: '1',
+    title: 'خدمات ما',
+    slug: 'services',
+    content: '<h2>خدمات ما</h2><p>ما بهترین خدمات طراحی و توسعه وب را ارائه می‌دهیم.</p><ul><li>طراحی CMS</li><li>رابط کاربری</li><li>سئو</li></ul>',
+    status: 'published',
+    createdAt: '2024-01-15'
+  },
+  {
+    id: '2',
+    title: 'حریم خصوصی',
+    slug: 'privacy',
+    content: '<h2>سیاست حفظ حریم خصوصی</h2><p>حریم خصوصی شما برای ما مهم است...</p>',
+    status: 'published',
+    createdAt: '2024-02-10'
+  }
+];
+
+export const MOCK_CATEGORIES: BlogCategory[] = [
+  { id: 'cat1', name: 'تکنولوژی', slug: 'tech' },
+  { id: 'cat2', name: 'سبک زندگی', slug: 'lifestyle' },
+  { id: 'cat3', name: 'عکاسی', slug: 'photography' },
+];
+
+export const MOCK_POSTS: BlogPost[] = [
+  {
+    id: '101',
+    title: 'آینده هوش مصنوعی در مدیریت محتوا',
+    slug: 'future-of-ai',
+    content: '<p>هوش مصنوعی در حال تغییر روش مدیریت محتوا است...</p>',
+    excerpt: 'چگونه هوش مصنوعی چشم‌انداز سیستم‌های مدیریت محتوا را تغییر می‌دهد.',
+    author: 'admin',
+    categoryId: 'cat1',
+    tags: ['هوش مصنوعی', 'تکنولوژی', 'آینده'],
+    featuredImage: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=500&q=80',
+    status: 'published',
+    createdAt: '2024-03-15',
+    views: 120,
+    metaTitle: 'هوش مصنوعی در CMS: آینده',
+    metaDescription: 'کشف کنید چگونه هوش مصنوعی مدیریت محتوا را متحول می‌کند.',
+    keywords: ['هوش مصنوعی', 'CMS', 'آینده'],
+    publishDate: '2024-03-15',
+    faqs: [
+      { question: 'آیا هوش مصنوعی جایگزین برنامه‌نویسان می‌شود؟', answer: 'خیر، به آنها کمک خواهد کرد.' }
+    ],
+    schemaType: 'Article'
+  },
+  {
+    id: '102',
+    title: 'نکات عکاسی مینیمالیست',
+    slug: 'minimalist-tips',
+    content: '<p>کمتر، بیشتر است. در عکاسی، فضای منفی ابزاری قدرتمند است...</p>',
+    excerpt: 'تسلط بر هنر عکاسی مینیمالیست با تکنیک‌های ساده.',
+    author: 'john_doe',
+    categoryId: 'cat3',
+    tags: ['عکاسی', 'هنر', 'مینیمالیسم'],
+    featuredImage: 'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=500&q=80',
+    status: 'published',
+    createdAt: '2024-03-18',
+    views: 85,
+    schemaType: 'BlogPosting'
+  }
+];
+
+export const MOCK_MEDIA: MediaFile[] = [
+  {
+    id: 'm1',
+    name: 'banner_01.jpg',
+    url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500&q=80',
+    type: 'image',
+    size: '1.2 MB',
+    date: '2024-01-20'
+  },
+  {
+    id: 'm2',
+    name: 'logo_dark.png',
+    url: 'https://via.placeholder.com/150',
+    type: 'image',
+    size: '45 KB',
+    date: '2024-01-22'
+  },
+  {
+    id: 'm3',
+    name: 'document.pdf',
+    url: '#',
+    type: 'document',
+    size: '2.5 MB',
+    date: '2024-02-05'
+  }
+];
+
+export const MOCK_COMMENTS: Comment[] = [
+  {
+    id: 'c1',
+    pageId: '1',
+    author: 'علی محمدی',
+    email: 'ali@example.com',
+    content: 'لیست خدمات عالی است! آیا طراحی اپلیکیشن موبایل هم انجام می‌دهید؟',
+    date: '2024-03-01',
+    status: 'approved',
+    replies: [
+        {
+            id: 'c1-r1',
+            pageId: '1',
+            author: 'مدیر سایت',
+            content: 'بله، ما تیم تخصصی فلاتر داریم.',
+            date: '2024-03-02',
+            status: 'approved'
+        }
+    ]
+  },
+  {
+    id: 'c2',
+    pageId: '101',
+    author: 'مریم حسینی',
+    email: 'maryam@test.com',
+    content: 'مطلب بسیار مفیدی بود. ممنون.',
+    date: '2024-03-16',
+    status: 'pending'
+  }
+];
+
+export const MOCK_MESSAGES: ContactMessage[] = [
+  {
+    id: 'msg1',
+    name: 'رضا علوی',
+    email: 'reza@example.com',
+    message: 'سلام، من به خدمات ویژه شما علاقه‌مندم. لطفا تماس بگیرید.',
+    date: '2024-03-10',
+    read: false
+  }
+];
+
+export const MOCK_MENUS: MenuItem[] = [
+  { id: '1', label: { fa: 'خانه', en: 'Home' }, url: '/', order: 1, location: 'header' },
+  { id: '2', label: { fa: 'وبلاگ', en: 'Blog' }, url: '/blog', order: 2, location: 'header' },
+  { id: '3', label: { fa: 'درباره ما', en: 'About' }, url: '/about', order: 3, location: 'header' },
+  { id: '4', label: { fa: 'تماس با ما', en: 'Contact' }, url: '/contact', order: 4, location: 'header' },
+  { id: '5', label: { fa: 'قوانین', en: 'Terms' }, url: '/terms', order: 1, location: 'footer' },
+  { id: '6', label: { fa: 'سوالات متداول', en: 'FAQ' }, url: '/faq', order: 2, location: 'footer' },
+];
+
+export const INITIAL_CONFIG = {
+  siteName: 'آرموت سی‌ام‌اس',
+  siteDescription: 'یک سیستم مدیریت محتوای قدرتمند',
+  installed: false,
+  maintenanceMode: false,
+  activeTheme: 'modern' as const,
+  adminTheme: 'modern' as const,
+  cacheDriver: 'file' as const,
+  contactEmail: 'support@armot.com',
+  contactPhone: '021-12345678',
+  contactAddress: 'تهران، خیابان ولیعصر، برج فناوری',
+  seoTitleSeparator: '|',
+  enableSitemap: true,
+};

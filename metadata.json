@@ -1,0 +1,5 @@
+{
+  "name": "ArmotCms",
+  "description": "An ultra-modern, plugin-based, multi-language CMS with a built-in installer, theme manager, and automatic SEO optimization. Features a dedicated Admin Dashboard and Public Frontend with RTL/LTR support.",
+  "requestFramePermissions": []
+}
