@@ -34,7 +34,7 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ pageId }) => {
       author,
       email,
       content,
-      date: new Date().toLocaleDateString(),
+      date: new Date().toISOString(),
       status: 'pending', // Default to pending for moderation
       replies: []
     };

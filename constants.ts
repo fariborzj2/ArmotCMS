@@ -1,5 +1,6 @@
 
-import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory } from './types';
+
+import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag } from './types';
 
 export const TRANSLATIONS: Translation = {
   // General
@@ -39,6 +40,9 @@ export const TRANSLATIONS: Translation = {
   installing: { fa: 'در حال نصب...', en: 'Installing...' },
   success: { fa: 'موفقیت آمیز', en: 'Success' },
   error: { fa: 'خطا', en: 'Error' },
+  view_site: { fa: 'مشاهده سایت', en: 'View Site' },
+  download: { fa: 'دانلود', en: 'Download' },
+  plugin_uploaded: { fa: 'افزونه با موفقیت بارگذاری شد', en: 'Plugin uploaded successfully' },
   
   // Navigation Categories
   nav_content: { fa: 'مدیریت محتوا', en: 'Content' },
@@ -57,6 +61,9 @@ export const TRANSLATIONS: Translation = {
   posts: { fa: 'نوشته‌ها', en: 'Posts' },
   categories: { fa: 'دسته‌بندی‌ها', en: 'Categories' },
   tags: { fa: 'برچسب‌ها', en: 'Tags' },
+  tags_manager: { fa: 'مدیریت تگ‌ها', en: 'Tags Manager' },
+  add_tag: { fa: 'افزودن تگ', en: 'Add Tag' },
+  tag_name: { fa: 'نام تگ', en: 'Tag Name' },
   tags_placeholder: { fa: 'تایپ کنید و اینتر یا کاما بزنید...', en: 'Type and hit Enter or Comma...' },
   add_post: { fa: 'افزودن نوشته', en: 'Add Post' },
   add_category: { fa: 'افزودن دسته‌بندی', en: 'Add Category' },
@@ -65,6 +72,11 @@ export const TRANSLATIONS: Translation = {
   by: { fa: 'توسط', en: 'By' },
   related_posts: { fa: 'مطالب مرتبط', en: 'Related Posts' },
   author_profile: { fa: 'پروفایل نویسنده', en: 'Author Profile' },
+  pin_post: { fa: 'سنجاق کردن مطلب', en: 'Pin Post' },
+  pinned: { fa: 'سنجاق شده', en: 'Pinned' },
+  views: { fa: 'بازدید', en: 'Views' },
+  comments_count: { fa: 'نظرات', en: 'Comments' },
+  sort_by: { fa: 'مرتب‌سازی', en: 'Sort by' },
   
   // Blog Settings & FAQs
   post_settings: { fa: 'تنظیمات مطلب', en: 'Post Settings' },
@@ -79,6 +91,7 @@ export const TRANSLATIONS: Translation = {
   answer: { fa: 'پاسخ', en: 'Answer' },
   keywords_hint: { fa: 'با اینتر یا کاما جدا کنید', en: 'Separate with Enter or comma' },
   persian_date: { fa: 'تاریخ شمسی', en: 'Persian Date' },
+  serp_preview: { fa: 'پیش‌نمایش در گوگل', en: 'Search Engine Preview' },
 
   // Profile
   profile: { fa: 'پروفایل من', en: 'My Profile' },
@@ -161,10 +174,27 @@ export const TRANSLATIONS: Translation = {
   plugin_manager: { fa: 'مدیریت افزونه‌ها', en: 'Plugin Manager' },
   upload_plugin: { fa: 'بارگذاری افزونه', en: 'Upload Plugin' },
   
-  // Theme Manager
+  // Theme Manager & Customization
   theme_manager: { fa: 'مدیریت قالب', en: 'Theme Manager' },
   frontend_theme: { fa: 'قالب سایت', en: 'Frontend Theme' },
   admin_theme: { fa: 'قالب مدیریت', en: 'Admin Theme' },
+  customize_styles: { fa: 'شخصی‌سازی استایل', en: 'Customize Styles' },
+  customize_desc: { fa: 'تغییر رنگ‌ها، فونت‌ها و ظاهر کلی سایت', en: 'Customize colors, fonts, and general appearance.' },
+  primary_color: { fa: 'رنگ اصلی', en: 'Primary Color' },
+  border_radius: { fa: 'گردی گوشه‌ها', en: 'Border Radius' },
+  font_family: { fa: 'فونت', en: 'Font Family' },
+  layout_density: { fa: 'تراکم چیدمان', en: 'Layout Density' },
+  preview: { fa: 'پیش‌نمایش', en: 'Preview' },
+  apply_changes: { fa: 'اعمال تغییرات', en: 'Apply Changes' },
+  radius_sm: { fa: 'کم', en: 'Small' },
+  radius_md: { fa: 'متوسط', en: 'Medium' },
+  radius_lg: { fa: 'زیاد', en: 'Large' },
+  radius_full: { fa: 'گرد', en: 'Full' },
+  density_compact: { fa: 'فشرده', en: 'Compact' },
+  density_comfortable: { fa: 'راحت', en: 'Comfortable' },
+  font_estedad: { fa: 'استعداد', en: 'Estedad' },
+  font_vazir: { fa: 'وزیر متن', en: 'Vazirmatn' },
+  font_inter: { fa: 'اینتر (انگلیسی)', en: 'Inter' },
   
   // Settings Tabs
   tab_general: { fa: 'عمومی', en: 'General' },
@@ -210,6 +240,93 @@ export const TRANSLATIONS: Translation = {
   location: { fa: 'مکان', en: 'Location' },
   header: { fa: 'هدر (بالا)', en: 'Header' },
   footer: { fa: 'فوتر (پایین)', en: 'Footer' },
+  drag_drop_hint: { fa: 'برای تغییر ترتیب بکشید و رها کنید یا از دکمه‌ها استفاده کنید', en: 'Drag and drop or use arrows to reorder' },
+  move_up: { fa: 'بالا', en: 'Up' },
+  move_down: { fa: 'پایین', en: 'Down' },
+  parent_menu: { fa: 'منوی والد', en: 'Parent Menu' },
+  no_parent: { fa: 'بدون والد (سطح اصلی)', en: 'No Parent (Root)' },
+  icon_name: { fa: 'نام آیکون', en: 'Icon Name' },
+  icon_hint: { fa: 'نام آیکون از مجموعه Lucide (مثلا: Home, User)', en: 'Lucide icon name (e.g. Home, User)' },
+
+  // Smart Assistant
+  smart_assistant: { fa: 'دستیار هوشمند', en: 'Smart Assistant' },
+  smart_assistant_desc: { fa: 'تولید محتوا و تعامل با هوش مصنوعی', en: 'AI-Powered Content & Engagement' },
+  ai_generator: { fa: 'تولید محتوا', en: 'Content Generator' },
+  ai_settings: { fa: 'تنظیمات هوش مصنوعی', en: 'AI Settings' },
+  generate_post: { fa: 'تولید پست وبلاگ', en: 'Generate Blog Post' },
+  analyze_rewrite: { fa: 'تحلیل و بازنویسی', en: 'Analyze & Rewrite' },
+  topic_prompt: { fa: 'موضوع یا عنوان مطلب را وارد کنید...', en: 'Enter topic or title...' },
+  crawler_prompt: { fa: 'آدرس URL یا متن را وارد کنید...', en: 'Enter URL or text...' },
+  generating: { fa: 'در حال نوشتن...', en: 'Generating...' },
+  processing: { fa: 'در حال پردازش محتوا...', en: 'Processing content...' },
+  generating_image: { fa: 'در حال تولید تصویر...', en: 'Generating image...' },
+  enable_auto_reply: { fa: 'فعال‌سازی پاسخ خودکار', en: 'Enable Auto Reply' },
+  enable_scheduler: { fa: 'فعال‌سازی زمان‌بندی هوشمند', en: 'Enable Smart Scheduler' },
+  enable_summary: { fa: 'فعال‌سازی خلاصه مطلب', en: 'Enable Content Summary' },
+  enable_image_gen: { fa: 'فعال‌سازی تولید تصویر', en: 'Enable Image Generation' },
+  preferred_model: { fa: 'مدل هوش مصنوعی', en: 'Preferred Model' },
+  summarize: { fa: 'خلاصه سازی', en: 'Summarize' },
+  ai_reply: { fa: 'پاسخ هوشمند', en: 'Smart Reply' },
+  ai_magic: { fa: 'جادوی محتوا', en: 'AI Magic' },
+  rewrite: { fa: 'بازنویسی متن', en: 'Rewrite Content' },
+  content_factory: { fa: 'کارخانه محتوا', en: 'Content Factory' },
+  scheduler: { fa: 'زمان‌بندی هوشمند', en: 'Smart Scheduler' },
+  crawler_mode: { fa: 'کراولر و بازنویسی', en: 'Crawler & Rewrite' },
+  generator_mode: { fa: 'تولید از موضوع', en: 'Generate from Topic' },
+  source_url_text: { fa: 'لینک منبع یا متن خام', en: 'Source URL or Raw Text' },
+  journalistic_tone: { fa: 'لحن ژورنالیستی', en: 'Journalistic Tone' },
+  seo_optimized: { fa: 'سئو شده + اسلاگ خودکار + لینک‌سازی', en: 'SEO Optimized + Auto Slug + Internal Links' },
+  calendar_view: { fa: 'تقویم محتوایی', en: 'Content Calendar' },
+  calendar_desc: { fa: 'تحلیل الگوها و پیشنهاد بهترین زمان انتشار', en: 'Analyze patterns and suggest optimal times.' },
+  suggest_schedule: { fa: 'پیشنهاد زمان‌بندی', en: 'Suggest Schedule' },
+  no_suggestions: { fa: 'هنوز پیشنهادی وجود ندارد.', en: 'No suggestions yet.' },
+  click_suggest: { fa: 'برای تحلیل پست‌های موجود روی "پیشنهاد زمان‌بندی" کلیک کنید.', en: 'Click "Suggest Schedule" to analyze existing posts.' },
+  topic_idea: { fa: 'ایده موضوع', en: 'Topic Idea' },
+  create_draft: { fa: 'ایجاد پیش‌نویس', en: 'Create Draft' },
+  draft_preview: { fa: 'پیش‌نمایش پیش‌نویس', en: 'Draft Preview' },
+  save_as_draft: { fa: 'ذخیره به عنوان پیش‌نویس', en: 'Save as Draft' },
+  draft_saved: { fa: 'پیش‌نویس در مدیریت وبلاگ ذخیره شد!', en: 'Draft saved to Blog Manager!' },
+  ai_error: { fa: 'خطا در تولید محتوا. لطفا دوباره تلاش کنید.', en: 'Error generating content. Please try again.' },
+  generated_content_here: { fa: 'محتوای تولید شده اینجا نمایش داده می‌شود', en: 'Generated content will appear here' },
+  
+  // AI Settings & Analysis
+  tone_formal: { fa: 'رسمی', en: 'Formal' },
+  tone_friendly: { fa: 'دوستانه', en: 'Friendly' },
+  tone_humorous: { fa: 'شوخ‌طبع', en: 'Humorous' },
+  reply_limit: { fa: 'محدودیت پاسخ روزانه', en: 'Daily Reply Limit' },
+  reply_limit_desc: { fa: 'حداکثر تعداد پاسخ‌های هوش مصنوعی در هر نشست.', en: 'Maximum number of AI replies generated per session.' },
+  analyze_comment: { fa: 'تحلیل نظر', en: 'Analyze Comment' },
+  sentiment_positive: { fa: 'مثبت', en: 'Positive' },
+  sentiment_negative: { fa: 'منفی', en: 'Negative' },
+  sentiment_neutral: { fa: 'خنثی', en: 'Neutral' },
+  type_question: { fa: 'سوال', en: 'Question' },
+  type_critique: { fa: 'انتقاد', en: 'Critique' },
+  type_suggestion: { fa: 'پیشنهاد', en: 'Suggestion' },
+  highlights: { fa: 'نکات کلیدی', en: 'Key Highlights' },
+  daily_limit_reached: { fa: 'سقف روزانه استفاده از هوش مصنوعی پر شده است.', en: 'Daily AI limit reached.' },
+  config_title: { fa: 'پیکربندی', en: 'Configuration' },
+  default_tone: { fa: 'لحن پیش‌فرض پاسخ', en: 'Default Reply Tone' },
+  model_fast: { fa: 'سریع (پیشنهادی)', en: 'Fast (Recommended)' },
+  model_high: { fa: 'هوش بالا', en: 'High Intelligence' },
+
+  // Crawler Sources
+  crawler_sources: { fa: 'منابع کراول', en: 'Crawler Sources' },
+  add_source: { fa: 'افزودن منبع', en: 'Add Source' },
+  source_name: { fa: 'نام منبع', en: 'Source Name' },
+  source_url: { fa: 'آدرس منبع (URL)', en: 'Source URL' },
+  last_crawled: { fa: 'آخرین بررسی', en: 'Last Crawled' },
+  no_sources: { fa: 'هنوز منبعی اضافه نشده است.', en: 'No sources added yet.' },
+  support_url_text: { fa: 'پشتیبانی از URL و متن', en: 'Supports URLs & Text' },
+  
+  // Media Manager
+  folder_all: { fa: 'همه فایل‌ها', en: 'All Files' },
+  folder_general: { fa: 'عمومی', en: 'General' },
+  folder_blog: { fa: 'وبلاگ', en: 'Blog' },
+  folder_user: { fa: 'کاربران', en: 'Users' },
+  folder_page: { fa: 'صفحات', en: 'Pages' },
+  root_folder: { fa: 'ریشه', en: 'root' },
+  no_files: { fa: 'فایلی یافت نشد.', en: 'No files found.' },
+  upload_to: { fa: 'آپلود در', en: 'Upload to' },
 
   // Public Pages
   about_us: { fa: 'درباره ما', en: 'About Us' },
@@ -273,7 +390,7 @@ export const MOCK_PLUGINS: Plugin[] = [
     version: '2.0.1',
     author: 'جامعه کاربری',
     active: false,
-    installed: true,
+    installed: false,
     type: 'extension',
   },
   {
@@ -315,6 +432,16 @@ export const MOCK_PLUGINS: Plugin[] = [
     active: true,
     installed: true,
     type: 'core',
+  },
+  {
+    id: 'smart-assistant',
+    name: 'دستیار هوشمند آرموت',
+    description: 'تولید محتوا، پاسخ به نظرات و زمان‌بندی هوشمند.',
+    version: '0.5.0',
+    author: 'هوش مصنوعی',
+    active: true,
+    installed: true,
+    type: 'extension',
   }
 ];
 
@@ -341,6 +468,15 @@ export const MOCK_CATEGORIES: BlogCategory[] = [
   { id: 'cat1', name: 'تکنولوژی', slug: 'tech' },
   { id: 'cat2', name: 'سبک زندگی', slug: 'lifestyle' },
   { id: 'cat3', name: 'عکاسی', slug: 'photography' },
+];
+
+export const MOCK_TAGS: BlogTag[] = [
+  { id: 'tag1', name: 'هوش مصنوعی' },
+  { id: 'tag2', name: 'تکنولوژی' },
+  { id: 'tag3', name: 'آینده' },
+  { id: 'tag4', name: 'عکاسی' },
+  { id: 'tag5', name: 'هنر' },
+  { id: 'tag6', name: 'مینیمالیسم' },
 ];
 
 export const MOCK_POSTS: BlogPost[] = [
@@ -390,7 +526,9 @@ export const MOCK_MEDIA: MediaFile[] = [
     url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=500&q=80',
     type: 'image',
     size: '1.2 MB',
-    date: '2024-01-20'
+    date: '2024-01-20',
+    folder: 'general/1403-10-01',
+    context: 'general'
   },
   {
     id: 'm2',
@@ -398,7 +536,9 @@ export const MOCK_MEDIA: MediaFile[] = [
     url: 'https://via.placeholder.com/150',
     type: 'image',
     size: '45 KB',
-    date: '2024-01-22'
+    date: '2024-01-22',
+    folder: 'general/1403-10-03',
+    context: 'general'
   },
   {
     id: 'm3',
@@ -406,7 +546,9 @@ export const MOCK_MEDIA: MediaFile[] = [
     url: '#',
     type: 'document',
     size: '2.5 MB',
-    date: '2024-02-05'
+    date: '2024-02-05',
+    folder: 'page/1403-11-15',
+    context: 'page'
   }
 ];
 
@@ -453,10 +595,10 @@ export const MOCK_MESSAGES: ContactMessage[] = [
 ];
 
 export const MOCK_MENUS: MenuItem[] = [
-  { id: '1', label: { fa: 'خانه', en: 'Home' }, url: '/', order: 1, location: 'header' },
-  { id: '2', label: { fa: 'وبلاگ', en: 'Blog' }, url: '/blog', order: 2, location: 'header' },
-  { id: '3', label: { fa: 'درباره ما', en: 'About' }, url: '/about', order: 3, location: 'header' },
-  { id: '4', label: { fa: 'تماس با ما', en: 'Contact' }, url: '/contact', order: 4, location: 'header' },
+  { id: '1', label: { fa: 'خانه', en: 'Home' }, url: '/', order: 1, location: 'header', icon: 'Home' },
+  { id: '2', label: { fa: 'وبلاگ', en: 'Blog' }, url: '/blog', order: 2, location: 'header', icon: 'PenTool' },
+  { id: '3', label: { fa: 'درباره ما', en: 'About' }, url: '/about', order: 3, location: 'header', icon: 'Info' },
+  { id: '4', label: { fa: 'تماس با ما', en: 'Contact' }, url: '/contact', order: 4, location: 'header', icon: 'Phone' },
   { id: '5', label: { fa: 'قوانین', en: 'Terms' }, url: '/terms', order: 1, location: 'footer' },
   { id: '6', label: { fa: 'سوالات متداول', en: 'FAQ' }, url: '/faq', order: 2, location: 'footer' },
 ];
@@ -468,10 +610,21 @@ export const INITIAL_CONFIG = {
   maintenanceMode: false,
   activeTheme: 'modern' as const,
   adminTheme: 'modern' as const,
-  cacheDriver: 'file' as const,
+  cacheDriver: 'memory' as const,
   contactEmail: 'support@armot.com',
   contactPhone: '021-12345678',
   contactAddress: 'تهران، خیابان ولیعصر، برج فناوری',
   seoTitleSeparator: '|',
   enableSitemap: true,
+};
+
+export const INITIAL_SMART_CONFIG = {
+  enableContentGen: true,
+  enableScheduler: true,
+  enableAutoReply: true,
+  enableSummary: true,
+  enableImageGen: false,
+  preferredModel: 'gemini-2.5-flash' as const,
+  replyTone: 'formal' as const,
+  dailyReplyLimit: 50,
 };

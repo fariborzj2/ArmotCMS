@@ -40,6 +40,11 @@ export interface MediaFile {
   path?: string;
 }
 
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
 export interface Page {
   id: string;
   title: string;
@@ -48,11 +53,20 @@ export interface Page {
   featuredImage?: string;
   status: 'published' | 'draft';
   createdAt: string;
+  
+  // Advanced Fields
+  excerpt?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  publishDate?: string; // ISO Date String
+  faqs?: FAQItem[];
+  schemaType?: 'WebPage' | 'AboutPage' | 'ContactPage' | 'LandingPage';
 }
 
-export interface FAQItem {
-  question: string;
-  answer: string;
+export interface BlogTag {
+  id: string;
+  name: string;
 }
 
 export interface BlogPost {
@@ -76,6 +90,7 @@ export interface BlogPost {
   publishDate?: string; // ISO Date String
   faqs?: FAQItem[];
   schemaType?: 'Article' | 'NewsArticle' | 'BlogPosting';
+  pinned?: boolean;
 }
 
 export interface BlogCategory {
@@ -111,6 +126,8 @@ export interface MenuItem {
   url: string;
   order: number;
   location: 'header' | 'footer';
+  parentId?: string; // For Nested Menus
+  icon?: string;     // Lucide Icon Name
 }
 
 export interface ActivityLog {
@@ -132,7 +149,7 @@ export interface SiteConfig {
   maintenanceMode: boolean;
   activeTheme: LayoutTheme;
   adminTheme: LayoutTheme;
-  cacheDriver: 'file' | 'redis' | 'memcached';
+  cacheDriver: 'file' | 'redis' | 'memcached' | 'memory';
   
   // New Fields
   contactEmail?: string;
@@ -140,6 +157,52 @@ export interface SiteConfig {
   contactAddress?: string;
   seoTitleSeparator?: string;
   enableSitemap?: boolean;
+
+  // UI Customization
+  uiRadius?: 'sm' | 'md' | 'lg' | 'full';
+  uiFont?: 'estedad' | 'vazir' | 'inter';
+  uiDensity?: 'compact' | 'comfortable';
+}
+
+export interface SmartAssistantConfig {
+  enableContentGen: boolean;
+  enableScheduler: boolean;
+  enableAutoReply: boolean;
+  enableSummary: boolean;
+  enableImageGen: boolean; // New
+  preferredModel: 'gemini-2.5-flash' | 'gemini-3-pro-preview';
+  replyTone: 'formal' | 'friendly' | 'humorous';
+  dailyReplyLimit: number;
+}
+
+export interface CrawlerSource {
+  id: string;
+  name: string;
+  url: string;
+  lastCrawled?: string;
+  status: 'active' | 'inactive';
+}
+
+export interface ContentTask {
+  id: string;
+  sourceUrl?: string;
+  topic?: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  result?: BlogPost;
+  createdAt: string;
+}
+
+export interface ScheduleSlot {
+  date: string; // ISO
+  topic: string;
+  reason: string; // Why AI picked this
+  bestTime: string; // HH:mm
+}
+
+export interface CommentAnalysis {
+  sentiment: 'positive' | 'neutral' | 'negative';
+  type: 'question' | 'critique' | 'suggestion' | 'general';
+  suggestedReply: string;
 }
 
 export interface Translation {

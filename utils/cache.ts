@@ -1,5 +1,6 @@
 
-type CacheDriver = 'file' | 'redis' | 'memcached';
+
+type CacheDriver = 'file' | 'redis' | 'memcached' | 'memory';
 
 interface CacheItem<T> {
   value: T;
@@ -10,7 +11,7 @@ class CacheManager {
   private driver: CacheDriver;
   private memoryStore: Map<string, CacheItem<any>>;
 
-  constructor(driver: CacheDriver = 'file') {
+  constructor(driver: CacheDriver = 'memory') {
     this.driver = driver;
     this.memoryStore = new Map();
   }
@@ -35,8 +36,7 @@ class CacheManager {
       }
       
       // Fallback / Implementation for 'file' (using localStorage)
-      // Check if window and localStorage exist to avoid SSR/Security errors
-      if (typeof window !== 'undefined') {
+      if (this.driver === 'file' && typeof window !== 'undefined') {
           try {
              window.localStorage.setItem(`cache_${key}`, JSON.stringify({ value, expiry }));
           } catch(e) {
@@ -62,32 +62,35 @@ class CacheManager {
         return memoryItem.value;
     }
 
-    // 2. Try Local Storage (Persistence)
-    let itemStr: string | null = null;
-    try {
-        if (typeof window !== 'undefined') {
-             // Accessing localStorage might throw
-             const storage = window.localStorage;
-             itemStr = storage.getItem(`cache_${key}`);
+    // 2. Try Local Storage (Persistence) only if 'file' driver
+    if (this.driver === 'file') {
+        let itemStr: string | null = null;
+        try {
+            if (typeof window !== 'undefined') {
+                 // Accessing localStorage might throw
+                 itemStr = window.localStorage.getItem(`cache_${key}`);
+            }
+        } catch (e) {
+            // Ignore storage errors
         }
-    } catch (e) {
-        // Ignore storage errors
-    }
 
-    if (!itemStr) return null;
+        if (!itemStr) return null;
 
-    try {
-        const item: CacheItem<T> = JSON.parse(itemStr);
-        if (now > item.expiry) {
-            this.forget(key);
+        try {
+            const item: CacheItem<T> = JSON.parse(itemStr);
+            if (now > item.expiry) {
+                this.forget(key);
+                return null;
+            }
+            // Hydrate memory store for next time
+            this.memoryStore.set(key, item);
+            return item.value;
+        } catch (e) {
             return null;
         }
-        // Hydrate memory store for next time
-        this.memoryStore.set(key, item);
-        return item.value;
-    } catch (e) {
-        return null;
     }
+    
+    return null;
   }
 
   forget(key: string): void {
@@ -98,12 +101,24 @@ class CacheManager {
   flush(): void {
     this.memoryStore.clear();
     try {
-        if (typeof window !== 'undefined') {
-            const storage = window.localStorage;
-            Object.keys(storage).forEach(key => {
-                if (key.startsWith('cache_')) {
-                    storage.removeItem(key);
+        if (this.driver === 'file' && typeof window !== 'undefined') {
+            // Safely iterating keys avoiding direct Object.keys on storage object which can trigger SecurityError
+            const keysToRemove: string[] = [];
+            try {
+                for (let i = 0; i < window.localStorage.length; i++) {
+                    const key = window.localStorage.key(i);
+                    if (key && key.startsWith('cache_')) {
+                        keysToRemove.push(key);
+                    }
                 }
+            } catch(e) {
+                // Ignore key iteration errors
+            }
+
+            keysToRemove.forEach(key => {
+                try {
+                    window.localStorage.removeItem(key);
+                } catch(e) { /* ignore */ }
             });
         }
     } catch (e) {
@@ -114,7 +129,7 @@ class CacheManager {
 
   private safeRemove(key: string) {
       try {
-          if (typeof window !== 'undefined') {
+          if (this.driver === 'file' && typeof window !== 'undefined') {
               window.localStorage.removeItem(key);
           }
       } catch (e) {

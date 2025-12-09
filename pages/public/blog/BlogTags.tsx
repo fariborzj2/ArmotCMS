@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
@@ -11,7 +12,10 @@ export const BlogTags = () => {
 
   if (tag) {
       // Single Tag View
-      const tagPosts = posts.filter(p => p.tags?.includes(tag) && p.status === 'published');
+      const tagPosts = posts
+        .filter(p => p.tags?.includes(tag) && p.status === 'published')
+        .sort((a, b) => new Date(b.publishDate || b.createdAt).getTime() - new Date(a.publishDate || a.createdAt).getTime());
+
       return (
           <div className="max-w-7xl mx-auto px-4 py-12">
               <div className="text-center mb-12">

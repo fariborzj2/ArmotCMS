@@ -1,20 +1,22 @@
 
+
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Plus, Trash2, Edit2, PenTool, Folder, Image as ImageIcon, Settings, HelpCircle, Save, X, Search as SearchIcon } from 'lucide-react';
-import { BlogPost, BlogCategory } from '../../types';
+import { Plus, Trash2, Edit2, PenTool, Folder, Image as ImageIcon, Settings, HelpCircle, Save, X, Search as SearchIcon, Sparkles, Tag, Pin, ArrowUp, ArrowDown, Eye, MessageSquare } from 'lucide-react';
+import { BlogPost, BlogCategory, BlogTag } from '../../types';
 import { MediaSelector } from '../../components/media/MediaSelector';
 import { RichTextEditor } from '../../components/ui/RichTextEditor';
 import { TagInput } from '../../components/ui/TagInput';
 import { PersianDatePicker } from '../../components/ui/PersianDatePicker';
 import { formatDate } from '../../utils/date';
 import { Pagination } from '../../components/ui/Pagination';
+import { aiService } from '../../utils/ai';
 
 export const BlogManager = () => {
-  const { t, posts, addPost, updatePost, deletePost, categories, addCategory, deleteCategory, user, lang } = useApp();
-  const [activeTab, setActiveTab] = useState<'posts' | 'categories'>('posts');
+  const { t, posts, addPost, updatePost, deletePost, categories, addCategory, deleteCategory, tags, addTag, deleteTag, user, lang, config, plugins, smartConfig, comments } = useApp();
+  const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'tags'>('posts');
   const [isEditing, setIsEditing] = useState(false);
   
   // Search & Pagination State
@@ -22,24 +24,70 @@ export const BlogManager = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   
+  // Sorting State
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'createdAt', direction: 'desc' });
+
   // Post Edit Tabs
   const [editTab, setEditTab] = useState<'content' | 'settings' | 'faqs'>('content');
 
   const [editPost, setEditPost] = useState<Partial<BlogPost>>({});
   const [editCategory, setEditCategory] = useState<Partial<BlogCategory>>({});
+  const [newTagName, setNewTagName] = useState('');
   const [showMediaModal, setShowMediaModal] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
-  // Filter & Paginate
-  const filteredPosts = posts.filter(post => 
+  const isSmartActive = plugins.some(p => p.id === 'smart-assistant' && p.active) && smartConfig.enableContentGen;
+
+  // Helper to count comments for a post
+  const getCommentCount = (postId: string) => comments.filter(c => c.pageId === postId).length;
+
+  // Filter & Paginate & Sort
+  const filteredPosts = posts
+    .filter(post => 
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      post.slug.includes(searchQuery.toLowerCase())
-  );
+      post.slug.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+        let aValue: any = a[sortConfig.key as keyof BlogPost];
+        let bValue: any = b[sortConfig.key as keyof BlogPost];
+
+        // Handle computed columns
+        if (sortConfig.key === 'commentCount') {
+            aValue = getCommentCount(a.id);
+            bValue = getCommentCount(b.id);
+        } else if (sortConfig.key === 'createdAt' || sortConfig.key === 'publishDate') {
+             // For Date sorting, we can still respect 'Pinned' as a secondary weight if desired,
+             // but standard table sorting usually overrides everything. 
+             // Let's implement standard sort, but if sorting by Date, keep Pinned logic on top.
+             if (sortConfig.key === 'createdAt' || sortConfig.key === 'publishDate') {
+                 if (a.pinned && !b.pinned) return -1;
+                 if (!a.pinned && b.pinned) return 1;
+             }
+             aValue = new Date(aValue || 0).getTime();
+             bValue = new Date(bValue || 0).getTime();
+        }
+
+        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
   
-  const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
   const paginatedPosts = filteredPosts.slice(
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
   );
+
+  const handleSort = (key: string) => {
+      setSortConfig(current => ({
+          key,
+          direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc'
+      }));
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+      if (sortConfig.key !== column) return <span className="w-4 h-4 inline-block"></span>;
+      return sortConfig.direction === 'asc' ? <ArrowUp size={14} className="inline-block ml-1" /> : <ArrowDown size={14} className="inline-block ml-1" />;
+  };
 
   // --- POST LOGIC ---
   const startEditPost = (post?: BlogPost) => {
@@ -61,7 +109,9 @@ export const BlogManager = () => {
         keywords: [],
         publishDate: new Date().toISOString(),
         faqs: [],
-        schemaType: 'Article'
+        schemaType: 'Article',
+        pinned: false,
+        views: 0
       });
     }
     setIsEditing(true);
@@ -90,7 +140,8 @@ export const BlogManager = () => {
       keywords: editPost.keywords,
       publishDate: editPost.publishDate,
       faqs: editPost.faqs,
-      schemaType: editPost.schemaType || 'Article'
+      schemaType: editPost.schemaType || 'Article',
+      pinned: editPost.pinned || false
     };
 
     if (editPost.id) {
@@ -121,6 +172,52 @@ export const BlogManager = () => {
     setEditPost({ ...editPost, faqs: newFaqs });
   };
 
+  const handleAiRewrite = async () => {
+      if(!editPost.content) return;
+      setAiLoading(true);
+      try {
+          const rewritten = await aiService.rewriteContent(editPost.content, smartConfig.preferredModel);
+          if (rewritten) setEditPost({ ...editPost, content: rewritten });
+      } catch (e) {
+          alert('AI Error');
+      }
+      setAiLoading(false);
+  };
+
+  const handleAiGenerate = async () => {
+      if(!editPost.title) return alert('Please enter a title first.');
+      setAiLoading(true);
+      
+      // Pass existing posts for internal linking context and allowed tags
+      const existingPostsContext = posts.map(p => ({ title: p.title, slug: `${p.id}-${p.slug}` }));
+      const allowedTagNames = tags.map(t => t.name);
+
+      try {
+          const result = await aiService.generatePost(editPost.title, smartConfig.preferredModel, existingPostsContext, allowedTagNames);
+          
+          let generatedImage = editPost.featuredImage;
+          if (smartConfig.enableImageGen && result.title) {
+              const imageBase64 = await aiService.generateBlogImage(result.title);
+              if (imageBase64) generatedImage = imageBase64;
+          }
+
+          if(result) {
+              setEditPost({
+                  ...editPost,
+                  title: result.title || editPost.title,
+                  slug: result.slug || editPost.slug,
+                  content: result.content,
+                  excerpt: result.excerpt,
+                  tags: result.tags,
+                  featuredImage: generatedImage
+              });
+          }
+      } catch (e) {
+          alert('AI Generation Failed');
+      }
+      setAiLoading(false);
+  };
+
   // --- CATEGORY LOGIC ---
   const handleSaveCategory = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +229,17 @@ export const BlogManager = () => {
       slug
     });
     setEditCategory({});
+  };
+
+  // --- TAG LOGIC ---
+  const handleSaveTag = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTagName.trim()) return;
+    addTag({
+      id: Date.now().toString(),
+      name: newTagName.trim()
+    });
+    setNewTagName('');
   };
 
   if (isEditing) {
@@ -146,21 +254,21 @@ export const BlogManager = () => {
         <div className="flex border-b border-gray-200 dark:border-gray-800 space-x-4 space-x-reverse overflow-x-auto">
              <button 
                 onClick={() => setEditTab('content')}
-                className={`pb-3 px-4 font-medium transition-colors border-b-2 whitespace-nowrap ${editTab === 'content' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500'}`}
+                className={`pb-3 px-4 font-medium transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${editTab === 'content' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500'}`}
              >
                 <PenTool size={16} className="inline-block ml-2 rtl:mr-0 rtl:ml-2" />
                 {t('content')}
              </button>
              <button 
                 onClick={() => setEditTab('settings')}
-                className={`pb-3 px-4 font-medium transition-colors border-b-2 whitespace-nowrap ${editTab === 'settings' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500'}`}
+                className={`pb-3 px-4 font-medium transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${editTab === 'settings' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500'}`}
              >
                 <Settings size={16} className="inline-block ml-2 rtl:mr-0 rtl:ml-2" />
                 {t('post_settings')}
              </button>
              <button 
                 onClick={() => setEditTab('faqs')}
-                className={`pb-3 px-4 font-medium transition-colors border-b-2 whitespace-nowrap ${editTab === 'faqs' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500'}`}
+                className={`pb-3 px-4 font-medium transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${editTab === 'faqs' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500'}`}
              >
                 <HelpCircle size={16} className="inline-block ml-2 rtl:mr-0 rtl:ml-2" />
                 {t('faqs')}
@@ -174,15 +282,22 @@ export const BlogManager = () => {
             {editTab === 'content' && (
                 <div className="space-y-4 animate-fadeIn">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('title')}</label>
-                            <input 
-                                type="text" 
-                                value={editPost.title}
-                                onChange={e => setEditPost({...editPost, title: e.target.value})}
-                                className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-transparent dark:text-white"
-                                required
-                            />
+                        <div className="md:col-span-2 flex items-end gap-2">
+                             <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('title')}</label>
+                                <input 
+                                    type="text" 
+                                    value={editPost.title}
+                                    onChange={e => setEditPost({...editPost, title: e.target.value})}
+                                    className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-transparent dark:text-white"
+                                    required
+                                />
+                             </div>
+                             {isSmartActive && (
+                                <Button type="button" onClick={handleAiGenerate} isLoading={aiLoading} className="mb-0.5 bg-purple-600 hover:bg-purple-700" title={t('generate_post')}>
+                                   <Sparkles size={16} />
+                                </Button>
+                             )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('slug')}</label>
@@ -207,16 +322,33 @@ export const BlogManager = () => {
                                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                             </select>
                         </div>
-                        <div>
-                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('status')}</label>
-                             <select 
-                                value={editPost.status}
-                                onChange={e => setEditPost({...editPost, status: e.target.value as any})}
-                                className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-transparent dark:text-white"
-                             >
-                                <option value="draft">{t('draft')}</option>
-                                <option value="published">{t('published')}</option>
-                             </select>
+                        <div className="flex gap-4">
+                             <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('status')}</label>
+                                <select 
+                                    value={editPost.status}
+                                    onChange={e => setEditPost({...editPost, status: e.target.value as any})}
+                                    className="w-full p-2 rounded border border-gray-300 dark:border-gray-700 bg-transparent dark:text-white"
+                                >
+                                    <option value="draft">{t('draft')}</option>
+                                    <option value="published">{t('published')}</option>
+                                </select>
+                             </div>
+                             <div className="flex items-center pt-6">
+                                <div className="flex items-center gap-2">
+                                    <input 
+                                        type="checkbox" 
+                                        id="pinned"
+                                        checked={editPost.pinned || false}
+                                        onChange={e => setEditPost({...editPost, pinned: e.target.checked})}
+                                        className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                                    />
+                                    <label htmlFor="pinned" className="text-sm font-medium text-gray-700 dark:text-gray-300 select-none cursor-pointer flex items-center gap-1">
+                                        <Pin size={14} className="text-gray-500" />
+                                        {t('pin_post')}
+                                    </label>
+                                </div>
+                             </div>
                         </div>
                     </div>
 
@@ -248,7 +380,14 @@ export const BlogManager = () => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('content')}</label>
+                        <div className="flex justify-between mb-1">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('content')}</label>
+                            {isSmartActive && (
+                                <button type="button" onClick={handleAiRewrite} className="text-xs text-purple-600 flex items-center gap-1 hover:underline" disabled={aiLoading}>
+                                    <Sparkles size={12} /> {t('rewrite')}
+                                </button>
+                            )}
+                        </div>
                         <RichTextEditor 
                             key={editPost.id || 'new'}
                             id="blog-content-editor"
@@ -265,6 +404,9 @@ export const BlogManager = () => {
                            onChange={tags => setEditPost({...editPost, tags})}
                            placeholder={t('tags_placeholder')}
                         />
+                        <div className="mt-2 text-xs text-gray-500">
+                            Available Tags: {tags.map(t => t.name).join(', ')}
+                        </div>
                     </div>
                 </div>
             )}
@@ -272,6 +414,29 @@ export const BlogManager = () => {
             {/* SETTINGS TAB */}
             {editTab === 'settings' && (
                 <div className="space-y-4 animate-fadeIn">
+                     <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-4">
+                        <h3 className="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wide">{t('serp_preview')}</h3>
+                        <div className="bg-white p-4 rounded border border-gray-200 shadow-sm max-w-xl">
+                            <div className="flex flex-col font-sans ltr text-left">
+                                <span className="text-sm text-[#202124] flex items-center gap-2 mb-1">
+                                    <div className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-[10px] font-bold text-gray-600 uppercase">
+                                        {config.siteName.charAt(0)}
+                                    </div>
+                                    <div className="flex flex-col">
+                                       <span className="text-sm text-[#202124] leading-tight">{config.siteName}</span>
+                                       <span className="text-xs text-gray-500 leading-tight">{window.location.host} › blog › {editPost.slug || 'post-url'}</span>
+                                    </div>
+                                </span>
+                                <h3 className="text-xl text-[#1a0dab] hover:underline cursor-pointer truncate font-medium mt-1">
+                                    {editPost.metaTitle || editPost.title || 'Post Title'}
+                                </h3>
+                                <p className="text-sm text-[#4d5156] line-clamp-2 mt-1">
+                                    {editPost.metaDescription || editPost.excerpt || 'Meta description will appear here...'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('meta_title')}</label>
                         <input 
@@ -397,21 +562,25 @@ export const BlogManager = () => {
     );
   }
 
+  // --- HEADER & BUTTONS (Mobile Responsive Fix) ---
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-2xl font-bold dark:text-white">{t('blog')}</h1>
-        <div className="flex gap-2">
-            <Button variant={activeTab === 'posts' ? 'primary' : 'secondary'} onClick={() => setActiveTab('posts')}>
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            <Button variant={activeTab === 'posts' ? 'primary' : 'secondary'} onClick={() => setActiveTab('posts')} className="flex-1 md:flex-none justify-center whitespace-nowrap" size="sm">
                 <PenTool size={16} className="mr-2" /> {t('posts')}
             </Button>
-            <Button variant={activeTab === 'categories' ? 'primary' : 'secondary'} onClick={() => setActiveTab('categories')}>
+            <Button variant={activeTab === 'categories' ? 'primary' : 'secondary'} onClick={() => setActiveTab('categories')} className="flex-1 md:flex-none justify-center whitespace-nowrap" size="sm">
                 <Folder size={16} className="mr-2" /> {t('categories')}
+            </Button>
+            <Button variant={activeTab === 'tags' ? 'primary' : 'secondary'} onClick={() => setActiveTab('tags')} className="flex-1 md:flex-none justify-center whitespace-nowrap" size="sm">
+                <Tag size={16} className="mr-2" /> {t('tags_manager')}
             </Button>
         </div>
       </div>
 
-      {activeTab === 'posts' ? (
+      {activeTab === 'posts' && (
         <div className="space-y-4">
             <div className="flex flex-col md:flex-row justify-between gap-4">
                 <div className="relative">
@@ -429,32 +598,76 @@ export const BlogManager = () => {
                 </Button>
             </div>
 
+            {/* Mobile Sort Controls (Visible only on mobile) */}
+            <div className="md:hidden flex items-center gap-2 overflow-x-auto pb-2 mb-2 scrollbar-hide">
+                <span className="text-xs text-gray-500 whitespace-nowrap">{t('sort_by')}:</span>
+                {['title', 'views', 'commentCount', 'createdAt'].map((key) => (
+                    <button
+                        key={key}
+                        onClick={() => handleSort(key)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors whitespace-nowrap ${
+                            sortConfig.key === key 
+                            ? 'bg-primary-50 text-primary-700 border-primary-200 dark:bg-primary-900/30 dark:text-primary-300 dark:border-primary-800' 
+                            : 'bg-white text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                        }`}
+                    >
+                        {t(key === 'createdAt' ? 'date' : key === 'commentCount' ? 'comments_count' : key)}
+                        <SortIcon column={key} />
+                    </button>
+                ))}
+            </div>
+
             <div className="md:bg-white md:dark:bg-gray-800 md:rounded-xl md:shadow-sm md:border md:border-gray-200 md:dark:border-gray-700 overflow-hidden">
-                <div className="">
-                    <table className="w-full text-left rtl:text-right block md:table">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left rtl:text-right block md:table whitespace-nowrap">
                         <thead className="hidden md:table-header-group bg-gray-50 dark:bg-gray-900/50 text-gray-500 uppercase text-xs">
                             <tr>
-                                <th className="px-6 py-3">{t('title')}</th>
-                                <th className="px-6 py-3">{t('category')}</th>
-                                <th className="px-6 py-3">{t('date')}</th>
+                                <th className="px-6 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => handleSort('title')}>
+                                    {t('title')} <SortIcon column="title" />
+                                </th>
+                                <th className="px-6 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => handleSort('views')}>
+                                    {t('views')} <SortIcon column="views" />
+                                </th>
+                                <th className="px-6 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => handleSort('commentCount')}>
+                                    {t('comments_count')} <SortIcon column="commentCount" />
+                                </th>
+                                <th className="px-6 py-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onClick={() => handleSort('createdAt')}>
+                                    {t('date')} <SortIcon column="createdAt" />
+                                </th>
                                 <th className="px-6 py-3 text-right rtl:text-left">{t('actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="block md:table-row-group space-y-4 md:space-y-0 divide-y divide-gray-100 dark:divide-gray-800">
                             {paginatedPosts.map(post => {
                                 const cat = categories.find(c => c.id === post.categoryId);
+                                const commentCount = getCommentCount(post.id);
+                                const postLink = `#/blog/${cat?.slug || 'uncategorized'}/${post.id}-${post.slug}`;
+
                                 return (
                                     <tr key={post.id} className="block md:table-row bg-white dark:bg-gray-800 md:bg-transparent rounded-xl shadow-sm md:shadow-none border border-gray-200 dark:border-gray-700 md:border-none p-4 md:p-0 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                                         <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 font-bold dark:text-white flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
                                             <span className="md:hidden text-gray-500 text-xs font-bold">{t('title')}</span>
-                                            <div className="flex items-center gap-2">
-                                                {post.title}
-                                                {post.status === 'draft' && <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded">Draft</span>}
+                                            <div className="flex items-center gap-2 max-w-[200px] md:max-w-xs truncate">
+                                                <a href={postLink} target="_blank" className="truncate hover:text-primary-600 transition-colors" title={post.title}>
+                                                    {post.title}
+                                                </a>
+                                                {post.pinned && <Pin size={12} className="text-orange-500 flex-shrink-0" fill="currentColor" />}
+                                                {post.status === 'draft' && <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded flex-shrink-0">Draft</span>}
                                             </div>
                                         </td>
                                         <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 text-sm text-gray-500 flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
-                                            <span className="md:hidden text-gray-500 text-xs font-bold">{t('category')}</span>
-                                            {cat?.name || '-'}
+                                            <span className="md:hidden text-gray-500 text-xs font-bold">{t('views')}</span>
+                                            <div className="flex items-center gap-1">
+                                                <Eye size={14} className="text-gray-400" />
+                                                {post.views || 0}
+                                            </div>
+                                        </td>
+                                        <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 text-sm text-gray-500 flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
+                                            <span className="md:hidden text-gray-500 text-xs font-bold">{t('comments_count')}</span>
+                                            <div className="flex items-center gap-1">
+                                                <MessageSquare size={14} className="text-gray-400" />
+                                                {commentCount}
+                                            </div>
                                         </td>
                                         <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 text-sm text-gray-500 flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
                                             <span className="md:hidden text-gray-500 text-xs font-bold">{t('date')}</span>
@@ -463,8 +676,8 @@ export const BlogManager = () => {
                                         <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 text-right rtl:text-left flex justify-between items-center md:block">
                                             <span className="md:hidden text-gray-500 text-xs font-bold">{t('actions')}</span>
                                             <div className="flex justify-end gap-2">
-                                                <button onClick={() => startEditPost(post)} className="text-blue-500"><Edit2 size={16} /></button>
-                                                <button onClick={() => handleDeletePost(post.id)} className="text-red-500"><Trash2 size={16} /></button>
+                                                <button onClick={() => startEditPost(post)} className="text-blue-500 hover:bg-blue-50 p-1 rounded"><Edit2 size={16} /></button>
+                                                <button onClick={() => handleDeletePost(post.id)} className="text-red-500 hover:bg-red-50 p-1 rounded"><Trash2 size={16} /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -472,7 +685,7 @@ export const BlogManager = () => {
                             })}
                             {filteredPosts.length === 0 && (
                                 <tr className="block md:table-row">
-                                    <td colSpan={4} className="block md:table-cell text-center py-8 text-gray-500">
+                                    <td colSpan={5} className="block md:table-cell text-center py-8 text-gray-500">
                                         {t('no_results')}
                                     </td>
                                 </tr>
@@ -488,7 +701,9 @@ export const BlogManager = () => {
                 onPageChange={setCurrentPage} 
             />
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'categories' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
                 <h3 className="font-bold mb-4 dark:text-white">{t('add_category')}</h3>
@@ -520,6 +735,37 @@ export const BlogManager = () => {
                             <span className="text-xs text-gray-500 ml-2">/{cat.slug}</span>
                         </div>
                         <button onClick={() => deleteCategory(cat.id)} className="text-red-500"><Trash2 size={16} /></button>
+                    </div>
+                ))}
+            </div>
+        </div>
+      )}
+
+      {activeTab === 'tags' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+                <h3 className="font-bold mb-4 dark:text-white">{t('add_tag')}</h3>
+                <form onSubmit={handleSaveTag} className="space-y-4">
+                    <input 
+                        type="text" 
+                        placeholder={t('tag_name')}
+                        value={newTagName}
+                        onChange={e => setNewTagName(e.target.value)}
+                        className="w-full p-2 rounded border bg-transparent dark:text-white border-gray-300 dark:border-gray-700"
+                        required
+                    />
+                    <Button type="submit">{t('save')}</Button>
+                </form>
+            </Card>
+            
+            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-2">
+                {tags.map(tag => (
+                    <div key={tag.id} className="flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center gap-2">
+                            <Tag size={16} className="text-primary-500" />
+                            <span className="font-bold dark:text-white">{tag.name}</span>
+                        </div>
+                        <button onClick={() => deleteTag(tag.id)} className="text-red-500"><Trash2 size={16} /></button>
                     </div>
                 ))}
             </div>

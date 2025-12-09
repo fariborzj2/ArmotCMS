@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -23,7 +24,9 @@ import {
   Activity,
   Server,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Home,
+  Sparkles
 } from 'lucide-react';
 
 type NavGroup = {
@@ -65,8 +68,9 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
   const isAdmin = user?.role === 'admin';
   const unreadMessages = messages.filter(m => !m.read).length;
   
-  // Check if Blog Plugin is Active
+  // Check Active Plugins
   const isBlogActive = plugins.some(p => p.id === 'armot-blog' && p.active);
+  const isSmartActive = plugins.some(p => p.id === 'smart-assistant' && p.active);
 
   // Grouped Navigation Structure
   const navGroups: (NavGroup | { type: 'single', item: any })[] = [
@@ -80,7 +84,8 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
       items: [
         { icon: FileText, label: 'pages', path: '/admin/pages', roles: ['admin', 'editor'] },
         ...(isBlogActive ? [{ icon: PenTool, label: 'blog', path: '/admin/blog', roles: ['admin', 'editor'] }] : []),
-        { icon: ImageIcon, label: 'media', path: '/admin/media', roles: ['admin', 'editor'] }
+        { icon: ImageIcon, label: 'media', path: '/admin/media', roles: ['admin', 'editor'] },
+        ...(isSmartActive ? [{ icon: Sparkles, label: 'smart_assistant', path: '/admin/smart-assistant', roles: ['admin', 'editor'] }] : [])
       ]
     },
     {
@@ -156,9 +161,11 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
         ${sidebarOpen ? (lang === 'fa' ? 'translate-x-0' : 'translate-x-0') : (lang === 'fa' ? 'translate-x-full' : '-translate-x-full')}
       `}>
         <div className="h-16 flex-shrink-0 flex items-center justify-between px-6 border-b border-gray-100 dark:border-gray-800">
-          <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
-            Armot<span className="font-light text-gray-500">Cms</span>
-          </span>
+          <Link to="/admin" onClick={() => setSidebarOpen(false)}>
+            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">
+              Armot<span className="font-light text-gray-500">Cms</span>
+            </span>
+          </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-gray-500">
             <X size={20} />
           </button>
@@ -243,6 +250,16 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
           </button>
 
           <div className="flex items-center gap-4 mr-auto ml-0 rtl:ml-auto rtl:mr-0">
+             {/* View Site - Home Button */}
+             <Link 
+               to="/"
+               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors flex items-center gap-2"
+               title={t('view_site')}
+             >
+               <Home size={20} />
+               <span className="hidden md:inline text-sm font-medium">{t('view_site')}</span>
+             </Link>
+
              {/* Language Switcher */}
              <button 
               onClick={() => setLang(lang === 'fa' ? 'en' : 'fa')}

@@ -35,6 +35,13 @@ export const Tools = () => {
         }
     };
     reader.readAsText(file);
+    
+    // Safely reset input
+    try {
+        e.target.value = '';
+    } catch (e) {
+        // Ignore security error
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
 
-import { SiteConfig, Plugin, User, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, ActivityLog } from '../types';
-import { MOCK_PLUGINS, INITIAL_CONFIG, MOCK_PAGES, MOCK_COMMENTS, MOCK_MEDIA, MOCK_MENUS, MOCK_MESSAGES, MOCK_POSTS, MOCK_CATEGORIES } from '../constants';
+
+import { SiteConfig, Plugin, User, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, ActivityLog, SmartAssistantConfig, CrawlerSource, BlogTag } from '../types';
+import { MOCK_PLUGINS, INITIAL_CONFIG, MOCK_PAGES, MOCK_COMMENTS, MOCK_MEDIA, MOCK_MENUS, MOCK_MESSAGES, MOCK_POSTS, MOCK_CATEGORIES, MOCK_TAGS, INITIAL_SMART_CONFIG } from '../constants';
 
 const KEYS = {
   CONFIG: 'armot_config',
@@ -10,46 +11,73 @@ const KEYS = {
   PAGES: 'armot_pages',
   POSTS: 'armot_posts',
   CATEGORIES: 'armot_categories',
+  TAGS: 'armot_tags',
   COMMENTS: 'armot_comments',
   MEDIA: 'armot_media',
   MENUS: 'armot_menus',
   MESSAGES: 'armot_messages',
   LOGS: 'armot_logs',
+  SMART_CONFIG: 'armot_smart_config',
+  CRAWLER_SOURCES: 'armot_crawler_sources',
 };
 
-// Safe Storage Wrapper to handle 'SecurityError: The operation is insecure' in restricted iframes
+// In-Memory Fallback for restricted environments (e.g. sandboxed iframes)
+const memoryStorage: Record<string, string> = {};
+
+// Feature detection to check if LocalStorage is actually usable
+let isStorageAvailable = false;
+try {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const x = '__storage_test__';
+    window.localStorage.setItem(x, x);
+    window.localStorage.removeItem(x);
+    isStorageAvailable = true;
+  }
+} catch (e) {
+  isStorageAvailable = false;
+}
+
+// Safe Storage Wrapper to handle 'SecurityError: The operation is insecure'
 const safeStorage = {
   getItem: (key: string) => {
     try {
-      // Accessing window.localStorage can throw SecurityError in restricted iframes
-      const storage = window.localStorage;
-      return storage.getItem(key);
+      if (isStorageAvailable) {
+        return window.localStorage.getItem(key);
+      }
+      return memoryStorage[key] || null;
     } catch (e) {
-      return null;
+      return memoryStorage[key] || null;
     }
   },
   setItem: (key: string, value: string) => {
     try {
-      const storage = window.localStorage;
-      storage.setItem(key, value);
+      if (isStorageAvailable) {
+        window.localStorage.setItem(key, value);
+      } else {
+        memoryStorage[key] = value;
+      }
     } catch (e) {
-      // Silently fail
+      memoryStorage[key] = value;
     }
   },
   removeItem: (key: string) => {
     try {
-      const storage = window.localStorage;
-      storage.removeItem(key);
+      if (isStorageAvailable) {
+        window.localStorage.removeItem(key);
+      }
+      delete memoryStorage[key];
     } catch (e) {
-      // Silently fail
+      delete memoryStorage[key];
     }
   },
   clear: () => {
     try {
-      const storage = window.localStorage;
-      storage.clear();
+      if (isStorageAvailable) {
+        window.localStorage.clear();
+      }
+      for (const key in memoryStorage) delete memoryStorage[key];
     } catch (e) {
-      // Silently fail
+      for (const key in memoryStorage) delete memoryStorage[key];
     }
   }
 };
@@ -100,6 +128,15 @@ export const storage = {
     safeStorage.setItem(KEYS.CATEGORIES, JSON.stringify(categories));
   },
 
+  getTags: (): BlogTag[] => {
+    const data = safeStorage.getItem(KEYS.TAGS);
+    return data ? JSON.parse(data) : MOCK_TAGS;
+  },
+
+  saveTags: (tags: BlogTag[]) => {
+    safeStorage.setItem(KEYS.TAGS, JSON.stringify(tags));
+  },
+
   getComments: (): Comment[] => {
     const data = safeStorage.getItem(KEYS.COMMENTS);
     return data ? JSON.parse(data) : MOCK_COMMENTS;
@@ -143,6 +180,24 @@ export const storage = {
 
   saveLogs: (logs: ActivityLog[]) => {
     safeStorage.setItem(KEYS.LOGS, JSON.stringify(logs));
+  },
+
+  getSmartConfig: (): SmartAssistantConfig => {
+    const data = safeStorage.getItem(KEYS.SMART_CONFIG);
+    return data ? JSON.parse(data) : INITIAL_SMART_CONFIG;
+  },
+
+  saveSmartConfig: (config: SmartAssistantConfig) => {
+    safeStorage.setItem(KEYS.SMART_CONFIG, JSON.stringify(config));
+  },
+
+  getCrawlerSources: (): CrawlerSource[] => {
+    const data = safeStorage.getItem(KEYS.CRAWLER_SOURCES);
+    return data ? JSON.parse(data) : [];
+  },
+
+  saveCrawlerSources: (sources: CrawlerSource[]) => {
+    safeStorage.setItem(KEYS.CRAWLER_SOURCES, JSON.stringify(sources));
   },
 
   getUser: (): User | null => {

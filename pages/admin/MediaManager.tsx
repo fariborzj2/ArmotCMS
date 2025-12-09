@@ -1,4 +1,5 @@
 
+
 import React, { useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
@@ -21,11 +22,11 @@ export const MediaManager = () => {
 
   // Generate standard folder structure based on available contexts
   const folders = [
-      { id: 'all', label: 'All Files', icon: Home },
-      { id: 'general', label: 'General', icon: Folder },
-      { id: 'blog', label: 'Blog', icon: Folder },
-      { id: 'user', label: 'Users', icon: Folder },
-      { id: 'page', label: 'Pages', icon: Folder },
+      { id: 'all', label: t('folder_all'), icon: Home },
+      { id: 'general', label: t('folder_general'), icon: Folder },
+      { id: 'blog', label: t('folder_blog'), icon: Folder },
+      { id: 'user', label: t('folder_user'), icon: Folder },
+      { id: 'page', label: t('folder_page'), icon: Folder },
   ];
 
   const filteredMedia = media.filter(m => {
@@ -52,7 +53,7 @@ export const MediaManager = () => {
         url: URL.createObjectURL(file), // Local blob for demo
         type: file.type.startsWith('image/') ? 'image' : 'document',
         size: (file.size / 1024).toFixed(1) + ' KB',
-        date: new Date().toLocaleDateString(),
+        date: new Date().toISOString(),
         folder: folder,
         context: uploadContext,
         path: path
@@ -94,7 +95,7 @@ export const MediaManager = () => {
       <div className="flex flex-col md:flex-row gap-6 h-auto md:h-[calc(100vh-200px)]">
         {/* Sidebar */}
         <Card className="w-full md:w-64 p-4 flex flex-col gap-2 overflow-y-auto shrink-0">
-            <h3 className="font-bold text-gray-500 text-xs uppercase mb-2">Folders</h3>
+            <h3 className="font-bold text-gray-500 text-xs uppercase mb-2">{t('category')}</h3>
             {folders.map(f => (
                 <button
                     key={f.id}
@@ -121,7 +122,7 @@ export const MediaManager = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                 <div className="text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-900 p-2 rounded flex items-center gap-1 w-full md:w-auto">
                     <Folder size={12} />
-                    {activeContext === 'all' ? 'root' : `upload / images / ${activeContext}`}
+                    {activeContext === 'all' ? t('root_folder') : `upload / images / ${activeContext}`}
                 </div>
                 <div className="relative w-full md:w-auto">
                     <input 
@@ -169,9 +170,9 @@ export const MediaManager = () => {
                     <div className="w-16 h-16 bg-gray-200 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                         <Image size={32} />
                     </div>
-                    <p className="text-gray-500">No files found.</p>
+                    <p className="text-gray-500">{t('no_files')}</p>
                     <Button variant="ghost" onClick={triggerUpload} className="mt-4">
-                        Upload to {activeContext === 'all' ? 'General' : activeContext}
+                        {t('upload_to')} {activeContext === 'all' ? t('folder_general') : activeContext}
                     </Button>
                     </div>
                 )}

@@ -1,6 +1,7 @@
 
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, ActivityLog } from '../types';
+import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, ActivityLog, SmartAssistantConfig, CrawlerSource } from '../types';
 import { TRANSLATIONS } from '../constants';
 import { storage } from '../utils/storage';
 import { cache } from '../utils/cache';
@@ -28,6 +29,9 @@ interface AppContextType {
   categories: BlogCategory[];
   addCategory: (category: BlogCategory) => void;
   deleteCategory: (id: string) => void;
+  tags: BlogTag[];
+  addTag: (tag: BlogTag) => void;
+  deleteTag: (id: string) => void;
   comments: Comment[];
   addComment: (comment: Comment) => void;
   deleteComment: (id: string) => void;
@@ -43,6 +47,7 @@ interface AppContextType {
   menus: MenuItem[];
   addMenuItem: (item: MenuItem) => void;
   updateMenuItem: (item: MenuItem) => void;
+  reorderMenus: (items: MenuItem[]) => void;
   deleteMenuItem: (id: string) => void;
   logs: ActivityLog[];
   user: User | null;
@@ -51,6 +56,13 @@ interface AppContextType {
   isRTL: boolean;
   cacheSystem: typeof cache;
   restoreBackup: (data: string) => boolean;
+  
+  // Smart Assistant
+  smartConfig: SmartAssistantConfig;
+  updateSmartConfig: (updates: Partial<SmartAssistantConfig>) => void;
+  crawlerSources: CrawlerSource[];
+  addCrawlerSource: (source: CrawlerSource) => void;
+  deleteCrawlerSource: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -68,12 +80,17 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const [pages, setPages] = useState<Page[]>(storage.getPages());
   const [posts, setPosts] = useState<BlogPost[]>(storage.getPosts());
   const [categories, setCategories] = useState<BlogCategory[]>(storage.getCategories());
+  const [tags, setTags] = useState<BlogTag[]>(storage.getTags());
   const [comments, setComments] = useState<Comment[]>(storage.getComments());
   const [messages, setMessages] = useState<ContactMessage[]>(storage.getMessages());
   const [media, setMedia] = useState<MediaFile[]>(storage.getMedia());
   const [menus, setMenus] = useState<MenuItem[]>(storage.getMenus());
   const [logs, setLogs] = useState<ActivityLog[]>(storage.getLogs());
   const [user, setUser] = useState<User | null>(storage.getUser());
+  
+  // Smart Assistant State
+  const [smartConfig, setSmartConfig] = useState<SmartAssistantConfig>(storage.getSmartConfig());
+  const [crawlerSources, setCrawlerSources] = useState<CrawlerSource[]>(storage.getCrawlerSources());
 
   // Initialize Cache Driver
   useEffect(() => {
@@ -110,11 +127,14 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   useEffect(() => { storage.savePages(pages); }, [pages]);
   useEffect(() => { storage.savePosts(posts); }, [posts]);
   useEffect(() => { storage.saveCategories(categories); }, [categories]);
+  useEffect(() => { storage.saveTags(tags); }, [tags]);
   useEffect(() => { storage.saveComments(comments); }, [comments]);
   useEffect(() => { storage.saveMessages(messages); }, [messages]);
   useEffect(() => { storage.saveMedia(media); }, [media]);
   useEffect(() => { storage.saveMenus(menus); }, [menus]);
   useEffect(() => { storage.saveLogs(logs); }, [logs]);
+  useEffect(() => { storage.saveSmartConfig(smartConfig); }, [smartConfig]);
+  useEffect(() => { storage.saveCrawlerSources(crawlerSources); }, [crawlerSources]);
 
   // Helper: Log Activity
   const logActivity = (action: string, details: string) => {
@@ -200,6 +220,14 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     setCategories((prev) => prev.filter(c => c.id !== id));
     logActivity('delete_category', `Deleted category ID: ${id}`);
   };
+  const addTag = (tag: BlogTag) => {
+    setTags((prev) => [...prev, tag]);
+    logActivity('create_tag', `Created tag: ${tag.name}`);
+  };
+  const deleteTag = (id: string) => {
+    setTags((prev) => prev.filter(t => t.id !== id));
+    logActivity('delete_tag', `Deleted tag ID: ${id}`);
+  };
 
   // Comment Actions
   const addComment = (comment: Comment) => {
@@ -257,6 +285,14 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     setMenus((prev) => prev.map(m => m.id === item.id ? item : m));
     logActivity('update_menu_item', `Updated menu item: ${item.label.en}`);
   };
+  const reorderMenus = (items: MenuItem[]) => {
+      // Merge reordered items into existing state
+      setMenus(prev => {
+          const others = prev.filter(p => !items.find(i => i.id === p.id));
+          return [...others, ...items];
+      });
+      logActivity('reorder_menus', 'Reordered menu items');
+  };
   const deleteMenuItem = (id: string) => {
     setMenus((prev) => prev.filter(m => m.id !== id));
     logActivity('delete_menu_item', `Deleted menu item ID: ${id}`);
@@ -292,6 +328,21 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     }
     return false;
   };
+  
+  const updateSmartConfig = (updates: Partial<SmartAssistantConfig>) => {
+    setSmartConfig(prev => ({ ...prev, ...updates }));
+    if(user) logActivity('update_smart_config', 'Updated AI configuration');
+  };
+
+  const addCrawlerSource = (source: CrawlerSource) => {
+    setCrawlerSources(prev => [...prev, source]);
+    logActivity('add_crawler_source', `Added crawler source: ${source.name}`);
+  };
+
+  const deleteCrawlerSource = (id: string) => {
+    setCrawlerSources(prev => prev.filter(s => s.id !== id));
+    logActivity('delete_crawler_source', `Deleted crawler source ID: ${id}`);
+  };
 
   const value = {
     lang, setLang, t,
@@ -301,15 +352,18 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     pages, addPage, updatePage, deletePage,
     posts, addPost, updatePost, deletePost,
     categories, addCategory, deleteCategory,
+    tags, addTag, deleteTag,
     comments, addComment, deleteComment, updateComment, replyToComment,
     messages, addMessage, deleteMessage, markMessageRead,
     media, addMedia, deleteMedia,
-    menus, addMenuItem, updateMenuItem, deleteMenuItem,
+    menus, addMenuItem, updateMenuItem, reorderMenus, deleteMenuItem,
     logs,
     user, loginUser, logoutUser,
     isRTL: lang === 'fa',
     cacheSystem: cache,
-    restoreBackup
+    restoreBackup,
+    smartConfig, updateSmartConfig,
+    crawlerSources, addCrawlerSource, deleteCrawlerSource
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { Installer } from './pages/installer/Installer';
@@ -19,6 +18,7 @@ import { Profile } from './pages/admin/Profile';
 import { Settings } from './pages/admin/Settings';
 import { ActivityLogs } from './pages/admin/ActivityLogs';
 import { Tools } from './pages/admin/Tools';
+import { SmartAssistant } from './pages/admin/plugins/SmartAssistant'; // New Plugin Route
 import { Home } from './pages/public/Home';
 import { About } from './pages/public/About';
 import { Contact } from './pages/public/Contact';
@@ -40,6 +40,41 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 const AppRoutes = () => {
   const { config, user, plugins } = useApp();
 
+  // --- Dynamic Theme Application ---
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // 1. Fonts
+    const fontMap: Record<string, string> = {
+      'estedad': 'Estedad',
+      'vazir': 'Vazirmatn',
+      'inter': 'Inter'
+    };
+    const selectedFont = fontMap[config.uiFont || 'estedad'] || 'Estedad';
+    root.style.setProperty('--font-primary', selectedFont);
+
+    // 2. Border Radius
+    // Mapping config values to CSS variable values
+    const radiusSettings = {
+        'sm': { sm: '0.125rem', md: '0.25rem', lg: '0.375rem' },
+        'md': { sm: '0.125rem', md: '0.375rem', lg: '0.5rem' }, // Default
+        'lg': { sm: '0.25rem', md: '0.5rem', lg: '0.75rem' },
+        'full': { sm: '0.5rem', md: '1rem', lg: '1.5rem' }
+    };
+    const currentRadius = radiusSettings[config.uiRadius || 'md'];
+    root.style.setProperty('--radius-sm', currentRadius.sm);
+    root.style.setProperty('--radius-md', currentRadius.md);
+    root.style.setProperty('--radius-lg', currentRadius.lg);
+
+    // 3. Density (Experimental scaling)
+    if (config.uiDensity === 'compact') {
+        root.style.fontSize = '14px'; // Slightly smaller base
+    } else {
+        root.style.fontSize = '16px'; // Default
+    }
+
+  }, [config]);
+
   // If not installed, force redirect to installer
   if (!config.installed) {
      return (
@@ -55,12 +90,14 @@ const AppRoutes = () => {
 
   // Check Plugin Status
   const isBlogActive = plugins.some(p => p.id === 'armot-blog' && p.active);
+  const isSmartActive = plugins.some(p => p.id === 'smart-assistant' && p.active);
 
   return (
     <Routes>
       {/* Special Routes */}
       <Route path="/maintenance" element={<Maintenance />} />
       <Route path="/login" element={user ? <Navigate to="/admin" /> : <Login />} />
+      <Route path="/install" element={<Navigate to="/admin" replace />} />
       <Route path="/access-denied" element={<AccessDenied />} />
 
       {/* Public Routes - Guarded by Maintenance Mode */}
@@ -106,6 +143,7 @@ const AppRoutes = () => {
              {isBlogActive && <Route path="blog" element={<BlogManager />} />}
              <Route path="comments" element={<CommentManager />} />
              <Route path="media" element={<MediaManager />} />
+             {isSmartActive && <Route path="smart-assistant" element={<SmartAssistant />} />}
          </Route>
 
          {/* Admin Only Access */}

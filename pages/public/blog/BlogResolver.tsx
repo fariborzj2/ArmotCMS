@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
@@ -15,10 +16,15 @@ export const BlogResolver = () => {
   
   // 2. Check Author (using unique authors from posts as source of truth for public profiles)
   const isAuthor = posts.some(p => p.author === slug);
-  const authorPosts = posts.filter(p => p.author === slug && p.status === 'published');
+  const authorPosts = posts
+    .filter(p => p.author === slug && p.status === 'published')
+    .sort((a, b) => new Date(b.publishDate || b.createdAt).getTime() - new Date(a.publishDate || a.createdAt).getTime());
 
   if (category) {
-      const catPosts = posts.filter(p => p.categoryId === category.id && p.status === 'published');
+      const catPosts = posts
+        .filter(p => p.categoryId === category.id && p.status === 'published')
+        .sort((a, b) => new Date(b.publishDate || b.createdAt).getTime() - new Date(a.publishDate || a.createdAt).getTime());
+
       return (
           <div className="max-w-7xl mx-auto px-4 py-12">
               <div className="text-center mb-12">

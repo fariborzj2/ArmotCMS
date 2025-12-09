@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../../components/ui/Button';
@@ -27,7 +26,7 @@ export const Contact = () => {
       name: formData.name,
       email: formData.email,
       message: formData.message,
-      date: new Date().toLocaleDateString(),
+      date: new Date().toISOString(),
       read: false
     };
 

@@ -1,3 +1,5 @@
+
+
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
@@ -39,7 +41,7 @@ export const Settings = () => {
   const TabButton = ({ id, label, icon: Icon }: { id: typeof activeTab, label: string, icon: any }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${
         activeTab === id 
           ? 'border-primary-600 text-primary-600' 
           : 'border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
@@ -233,7 +235,8 @@ export const Settings = () => {
                 onChange={(e) => setLocalConfig({...localConfig, cacheDriver: e.target.value as any})}
                 className="w-full p-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white"
               >
-                <option value="file">File System</option>
+                <option value="memory">Memory (RAM - Safe)</option>
+                <option value="file">File System (LocalStorage)</option>
                 <option value="redis">Redis (High Performance)</option>
                 <option value="memcached">Memcached</option>
               </select>

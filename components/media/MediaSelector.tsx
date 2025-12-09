@@ -36,6 +36,13 @@ export const MediaSelector: React.FC<MediaSelectorProps> = ({ onSelect, onClose,
       };
       
       addMedia(newFile);
+      
+      // Safely reset input value
+      try {
+        if(e.target) e.target.value = '';
+      } catch(err) {
+        // Ignore SecurityError
+      }
     }
   };
 

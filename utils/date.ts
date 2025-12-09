@@ -2,23 +2,35 @@
 export const formatDate = (dateString: string, lang: 'fa' | 'en' = 'fa') => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat(lang === 'fa' ? 'fa-IR' : 'en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
+  if (isNaN(date.getTime())) return dateString; // Return raw string if invalid
+  
+  try {
+    return new Intl.DateTimeFormat(lang === 'fa' ? 'fa-IR' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
+  } catch (e) {
+    return dateString;
+  }
 };
 
 export const formatDateTime = (dateString: string, lang: 'fa' | 'en' = 'fa') => {
   if (!dateString) return '';
   const date = new Date(dateString);
-  return new Intl.DateTimeFormat(lang === 'fa' ? 'fa-IR' : 'en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date);
+  if (isNaN(date.getTime())) return dateString; // Return raw string if invalid
+
+  try {
+    return new Intl.DateTimeFormat(lang === 'fa' ? 'fa-IR' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  } catch (e) {
+    return dateString;
+  }
 };
 
 // --- Jalali (Shamsi) Algorithms ---

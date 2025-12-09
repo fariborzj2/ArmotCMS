@@ -14,7 +14,8 @@ export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({ value, onC
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Initialize View State (Jalali)
-  const initialDate = value ? new Date(value) : new Date();
+  // Ensure we have a valid date object, fallback to now if value is invalid
+  const initialDate = (value && !isNaN(new Date(value).getTime())) ? new Date(value) : new Date();
   const jInitial = toJalaali(initialDate.getFullYear(), initialDate.getMonth() + 1, initialDate.getDate());
 
   const [viewYear, setViewYear] = useState(jInitial.jy);
@@ -40,12 +41,14 @@ export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({ value, onC
   useEffect(() => {
     if (value) {
       const d = new Date(value);
-      const j = toJalaali(d.getFullYear(), d.getMonth() + 1, d.getDate());
-      setViewYear(j.jy);
-      setViewMonth(j.jm);
-      setSelectedDay(j.jd);
-      setHour(d.getHours());
-      setMinute(d.getMinutes());
+      if (!isNaN(d.getTime())) {
+        const j = toJalaali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+        setViewYear(j.jy);
+        setViewMonth(j.jm);
+        setSelectedDay(j.jd);
+        setHour(d.getHours());
+        setMinute(d.getMinutes());
+      }
     }
   }, [value]);
 
@@ -124,7 +127,9 @@ export const PersianDatePicker: React.FC<PersianDatePickerProps> = ({ value, onC
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full p-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 cursor-pointer hover:border-primary-500 transition-colors"
       >
-        <span className="text-gray-900 dark:text-white font-mono ltr text-sm">{value ? displayDate : 'انتخاب تاریخ'}</span>
+        <span className="text-gray-900 dark:text-white font-mono ltr text-sm">
+          {(value && !isNaN(new Date(value).getTime())) ? displayDate : 'انتخاب تاریخ'}
+        </span>
         <Calendar size={18} className="text-gray-500" />
       </div>
 

@@ -47,30 +47,68 @@ export const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
+        {/* Chart Section with min-w-0 to fix grid overflow issues */}
+        <Card className="lg:col-span-2 min-w-0">
           <h3 className="text-lg font-bold mb-4 dark:text-white">نمودار بازدید</h3>
-          <div className="h-64">
+          {/* Force LTR direction for Recharts to calculate coordinates correctly, regardless of document dir */}
+          <div className="h-64 w-full" style={{ direction: 'ltr' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart 
+                data={data} 
+                margin={{ 
+                  top: 10, 
+                  // In RTL, Axis is on Right, so we reduce right margin to avoid large gap
+                  // In LTR, Axis is on Left, so we keep right margin for visual balance
+                  right: isRTL ? 0 : 30, 
+                  left: isRTL ? 30 : 0, 
+                  bottom: 0 
+                }}
+              >
                 <defs>
                   <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.8}/>
                     <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" orientation={isRTL ? 'right' : 'left'} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="#94a3b8" 
+                  tick={{ fontFamily: 'Estedad, sans-serif', fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis 
+                  stroke="#94a3b8" 
+                  // In RTL (Persian), we typically want the axis on the Right side visually
+                  orientation={isRTL ? 'right' : 'left'} 
+                  tick={{ fontFamily: 'Estedad, sans-serif', fontSize: 12 }}
+                />
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
+                  contentStyle={{ 
+                    backgroundColor: '#1e293b', 
+                    border: 'none', 
+                    borderRadius: '8px', 
+                    color: '#fff',
+                    direction: isRTL ? 'rtl' : 'ltr', // Restore RTL for text inside tooltip
+                    fontFamily: 'Estedad, sans-serif',
+                    textAlign: isRTL ? 'right' : 'left'
+                  }}
+                  itemStyle={{ padding: 0 }}
                 />
-                <Area type="monotone" dataKey="uv" stroke="#0ea5e9" fillOpacity={1} fill="url(#colorUv)" />
+                <Area 
+                  type="monotone" 
+                  dataKey="uv" 
+                  stroke="#0ea5e9" 
+                  fillOpacity={1} 
+                  fill="url(#colorUv)" 
+                  name={t('total_visits')}
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </Card>
         
-        <div className="space-y-6">
+        <div className="space-y-6 min-w-0">
           <Card>
              <h3 className="text-lg font-bold mb-4 dark:text-white flex items-center justify-between">
                 {t('recent_activity')}
@@ -79,10 +117,11 @@ export const Dashboard = () => {
              <div className="space-y-4">
                  {recentLogs.map(log => (
                     <div key={log.id} className="flex gap-2 items-start text-sm">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-primary-500"></div>
-                        <div>
-                            <p className="dark:text-white font-medium">{log.user}</p>
-                            <p className="text-gray-500 text-xs">{log.action} - <span className="text-gray-400">{log.timestamp}</span></p>
+                        <div className="mt-1 w-2 h-2 rounded-full bg-primary-500 shrink-0"></div>
+                        <div className="min-w-0">
+                            <p className="dark:text-white font-medium truncate">{log.user}</p>
+                            <p className="text-gray-500 text-xs truncate">{log.action}</p>
+                            <p className="text-gray-400 text-[10px]">{log.timestamp}</p>
                         </div>
                     </div>
                  ))}
@@ -101,7 +140,7 @@ export const Dashboard = () => {
                 ) : (
                   recentComments.map(c => (
                     <div key={c.id} className="border-b border-gray-100 dark:border-gray-800 last:border-0 pb-3 last:pb-0">
-                       <p className="text-sm font-bold dark:text-white">{c.author}</p>
+                       <p className="text-sm font-bold dark:text-white truncate">{c.author}</p>
                        <p className="text-xs text-gray-500 truncate">{c.content}</p>
                     </div>
                   ))
