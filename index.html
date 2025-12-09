@@ -4,44 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ArmotCms</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.tiny.cloud/1/zhm469md3gofl79o8eo7l5581mn5292pu4o6zawa7p8nmna8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    
+    <!-- Preconnect to Font Origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Estedad Font -->
+    
+    <!-- Fonts (Load before scripts to prevent layout shifting/forcing) -->
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/estedad-font@v5.0.2/dist/font-face.css" rel="stylesheet" type="text/css" />
-    <!-- Vazirmatn Fallback -->
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
-    <!-- Inter Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['var(--font-primary)', 'Estedad', 'Vazirmatn', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-            },
-            colors: {
-              primary: {
-                50: '#f0f9ff',
-                100: '#e0f2fe',
-                500: '#0ea5e9',
-                600: '#0284c7',
-                700: '#0369a1',
-              }
-            },
-            borderRadius: {
-              'lg': 'var(--radius-lg)',
-              'xl': 'calc(var(--radius-lg) + 2px)',
-              '2xl': 'calc(var(--radius-lg) + 4px)',
-              'md': 'var(--radius-md)',
-              'sm': 'var(--radius-sm)',
-            }
-          }
-        }
-      }
-    </script>
+
+    <!-- Base Styles & Variables -->
     <style>
       :root {
         --font-primary: 'Estedad';
@@ -71,20 +44,56 @@
         background: #475569; 
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.1",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0"
-  }
-}
-</script>
-</head>
+
+    <!-- Tailwind CSS (CDN usage causes production warning, but is required for this environment) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['var(--font-primary)', 'Estedad', 'Vazirmatn', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                50: '#f0f9ff',
+                100: '#e0f2fe',
+                500: '#0ea5e9',
+                600: '#0284c7',
+                700: '#0369a1',
+              }
+            },
+            borderRadius: {
+              'lg': 'var(--radius-lg)',
+              'xl': 'calc(var(--radius-lg) + 2px)',
+              '2xl': 'calc(var(--radius-lg) + 4px)',
+              'md': 'var(--radius-md)',
+              'sm': 'var(--radius-sm)',
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/zhm469md3gofl79o8eo7l5581mn5292pu4o6zawa7p8nmna8/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <!-- Import Map -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://aistudiocdn.com/react@^19.2.1",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+        "react/": "https://aistudiocdn.com/react@^19.2.1/",
+        "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+        "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.10.1",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0"
+      }
+    }
+    </script>
+  </head>
   <body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300">
     <div id="root"></div>
   </body>
