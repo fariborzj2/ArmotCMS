@@ -1,10 +1,22 @@
-
-
 import { GoogleGenAI } from "@google/genai";
 import { BlogPost, CommentAnalysis, ScheduleSlot } from "../types";
 
-// Ensure this process.env.API_KEY is available in your build environment.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Safe initialization to prevent crash in browser if key is missing or process is undefined
+let ai: GoogleGenAI | null = null;
+
+try {
+  // Safely check for API Key presence
+  // @ts-ignore
+  const apiKey = typeof process !== "undefined" ? process.env?.API_KEY : undefined;
+  
+  if (apiKey) {
+    ai = new GoogleGenAI({ apiKey });
+  } else {
+    console.warn("ArmotCMS: AI features disabled. API_KEY is missing in process.env");
+  }
+} catch (e) {
+  console.warn("ArmotCMS: Failed to initialize AI SDK", e);
+}
 
 // Helper to strip Markdown JSON code blocks and find the JSON object/array
 const cleanJSON = (text: string) => {
@@ -42,6 +54,8 @@ export const aiService = {
    * Generates a full blog post based on a topic.
    */
   generatePost: async (topic: string, model: string = 'gemini-2.5-flash', existingPosts: {title: string, slug: string}[] = [], availableTags: string[] = []): Promise<Partial<BlogPost>> => {
+    if (!ai) throw new Error("AI API Key is missing. Please check your configuration.");
+
     const internalLinksPrompt = existingPosts.length > 0 ? `
       Internal Linking Context:
       Here is a list of existing articles on the blog:
@@ -106,6 +120,8 @@ export const aiService = {
    * Simulates a Crawl & Rewrite process. 
    */
   crawlAndRewrite: async (sourceText: string, model: string = 'gemini-2.5-flash', existingPosts: {title: string, slug: string}[] = [], availableTags: string[] = []): Promise<Partial<BlogPost>> => {
+    if (!ai) throw new Error("AI API Key is missing.");
+
     const isUrl = sourceText.startsWith('http');
     const internalLinksPrompt = existingPosts.length > 0 ? `
       Internal Linking:
@@ -167,6 +183,8 @@ export const aiService = {
    * Rewrites content to be more engaging or SEO friendly.
    */
   rewriteContent: async (content: string, model: string = 'gemini-2.5-flash') => {
+    if (!ai) throw new Error("AI API Key is missing.");
+
     const prompt = `Rewrite the following Persian text to be more engaging, journalistic, and SEO-friendly. 
     Maintain strict HTML structure. Add <strong> for emphasis and ensure headings are correct.
     Return ONLY the rewritten text. \n\n Text: ${content}`;
@@ -187,6 +205,8 @@ export const aiService = {
    * Analyzes a comment for sentiment, type, and suggests a reply.
    */
   analyzeComment: async (comment: string, tone: 'formal' | 'friendly' | 'humorous', model: string = 'gemini-2.5-flash'): Promise<CommentAnalysis | null> => {
+    if (!ai) return null;
+
     const prompt = `
       Analyze this user comment on a Persian blog: "${comment}"
       
@@ -224,6 +244,8 @@ export const aiService = {
    * Summarizes a long article for the frontend user.
    */
   summarize: async (content: string, model: string = 'gemini-2.5-flash') => {
+    if (!ai) throw new Error("AI API Key is missing.");
+
     const prompt = `Summarize the following article in Persian into 3 concise bullet points. Return as HTML <ul><li>...</li></ul>. \n\n Article: ${content.substring(0, 5000)}`;
     
     try {
@@ -242,6 +264,8 @@ export const aiService = {
    * Extracts Key Highlights.
    */
   extractHighlights: async (content: string, model: string = 'gemini-2.5-flash') => {
+    if (!ai) return null;
+
     const prompt = `
       Extract 3-5 specific "Key Highlights" (facts, numbers, or main takeaways) from this text. 
       CRITICAL: The output MUST be in Persian language, regardless of the source text language.
@@ -263,6 +287,8 @@ export const aiService = {
    * Smart Scheduler: Suggests posting times.
    */
   optimizeSchedule: async (existingDates: string[], model: string = 'gemini-2.5-flash'): Promise<ScheduleSlot[]> => {
+    if (!ai) throw new Error("AI API Key is missing.");
+
     const prompt = `
       Act as a Content Strategist for a Persian blog.
       Existing Posts Dates: ${JSON.stringify(existingDates)}.
@@ -302,6 +328,8 @@ export const aiService = {
    * Generates a Blog Featured Image
    */
   generateBlogImage: async (prompt: string): Promise<string | null> => {
+    if (!ai) return null;
+
     const fullPrompt = `A high quality, professional, minimalist blog header image about: "${prompt}". No text, abstract or photorealistic style.`;
     
     try {

@@ -168,7 +168,7 @@ export const ThemeManager = () => {
                     {t('border_radius')}
                 </label>
                 <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
-                    {['sm', 'md', 'lg', 'full'].map((r) => (
+                    {(['sm', 'md', 'lg', 'full'] as const).map((r) => (
                         <button
                             key={r}
                             onClick={() => setSelectedRadius(r)}
@@ -191,7 +191,7 @@ export const ThemeManager = () => {
                     {t('font_family')}
                 </label>
                 <div className="space-y-2">
-                    {['estedad', 'vazir', 'inter'].map((f) => (
+                    {(['estedad', 'vazir', 'inter'] as const).map((f) => (
                         <div 
                             key={f} 
                             onClick={() => setSelectedFont(f)}
@@ -215,7 +215,7 @@ export const ThemeManager = () => {
                     {t('layout_density')}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
-                    {['compact', 'comfortable'].map((d) => (
+                    {(['compact', 'comfortable'] as const).map((d) => (
                         <button
                             key={d}
                             onClick={() => setLayoutDensity(d)}

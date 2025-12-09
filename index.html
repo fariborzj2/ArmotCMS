@@ -50,6 +50,14 @@
       }
     </style>
 
+    <!-- Environment Polyfill -->
+    <script>
+      // Polyfill process.env for browser environments to prevent ReferenceErrors
+      if (typeof process === 'undefined') {
+        window.process = { env: {} };
+      }
+    </script>
+
     <!-- Tailwind CSS -->
     <!-- Note: The 'should not be used in production' warning is expected in this browser-only environment without a build step. -->
     <script src="https://cdn.tailwindcss.com"></script>
