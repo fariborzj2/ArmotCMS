@@ -40,7 +40,7 @@ type NavGroup = {
 };
 
 export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
-  const { t, logoutUser, themeMode, toggleThemeMode, user, lang, setLang, messages, comments } = useApp();
+  const { t, logoutUser, themeMode, toggleThemeMode, user, lang, setLang, messages, comments, isRTL } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -113,11 +113,13 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
 
       {/* Sidebar */}
       <aside className={`
-        fixed lg:static top-0 right-0 rtl:right-0 rtl:left-auto ltr:left-0 ltr:right-auto z-50 h-screen w-[280px] 
+        fixed lg:static top-0 z-50 h-screen w-[280px] 
         bg-white dark:bg-[#111827] 
-        transition-transform duration-300 ease-in-out transform 
-        ${sidebarOpen ? 'translate-x-0' : 'ltr:-translate-x-full rtl:translate-x-full lg:translate-x-0'} 
+        transition-transform duration-300 ease-in-out transform
         flex flex-col border-r border-gray-100 dark:border-gray-800 lg:border-none shadow-2xl lg:shadow-none
+        ${isRTL ? 'right-0' : 'left-0'}
+        ${sidebarOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}
+        lg:translate-x-0
       `}>
          
          {/* Logo */}
@@ -132,10 +134,10 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
                 </div>
             </Link>
             
-            {/* Close Button - Forced Left in RTL mobile */}
+            {/* Close Button */}
             <button 
                 onClick={() => setSidebarOpen(false)} 
-                className="lg:hidden absolute left-4 rtl:left-4 rtl:right-auto ltr:right-4 ltr:left-auto top-8 p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                className={`lg:hidden absolute top-8 p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ${isRTL ? 'left-4' : 'right-4'}`}
             >
                 <X size={24} />
             </button>
