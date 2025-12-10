@@ -227,8 +227,8 @@ export const ContentManager = () => {
                         </div>
                     </Card>
                     
-                    <Card className="p-0 overflow-hidden shadow-md">
-                        <div className="p-6 pb-0 border-b border-gray-100 dark:border-gray-800">
+                    <Card className="p-6 shadow-md">
+                        <div className="pb-4 border-b border-gray-100 dark:border-gray-800">
                             <label className={labelClass}>{t('content')}</label>
                         </div>
                         <div className="min-h-[500px]">
@@ -388,19 +388,19 @@ export const ContentManager = () => {
                     )}
                 </div>
             )}
-        </form>
 
-        {/* Sticky Mobile Action Bar */}
-        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-12 md:bottom-12 flex justify-end z-30 pointer-events-none">
-            <Button 
-                onClick={handleSave} 
-                size="lg" 
-                className="shadow-2xl shadow-primary-600/40 rounded-full px-8 pointer-events-auto transform hover:scale-105 transition-all"
-            >
-                <Save size={20} className="mr-2" />
-                {t('save')}
-            </Button>
-        </div>
+            {/* Sticky Mobile Action Bar */}
+            <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-12 md:bottom-12 flex justify-end z-30 pointer-events-none">
+                <Button 
+                    onClick={handleSave} 
+                    size="lg" 
+                    className="shadow-2xl shadow-primary-600/40 rounded-full px-8 pointer-events-auto transform hover:scale-105 transition-all"
+                >
+                    <Save size={20} className="mr-2" />
+                    {t('save')}
+                </Button>
+            </div>
+        </form>
         
         {showMediaModal && (
             <MediaSelector 

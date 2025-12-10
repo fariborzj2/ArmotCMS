@@ -327,7 +327,7 @@ export const BlogManager = () => {
 
   if (isEditing) {
     return (
-      <div className="space-y-6 pb-24">
+      <div className="space-y-6 pb-12">
         <div className="flex items-center gap-4">
              <button onClick={() => setIsEditing(false)} className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
                 <ChevronLeft size={24} className="rtl:rotate-180" />
@@ -468,8 +468,8 @@ export const BlogManager = () => {
                         </div>
                     </Card>
 
-                    <Card className="p-0 overflow-hidden shadow-md">
-                        <div className="p-6 pb-0 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
+                    <Card className="p-6 shadow-md">
+                        <div className="pb-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 mb-4">
                             <label className={labelClass}>{t('content')}</label>
                             {isSmartActive && (
                                 <button type="button" onClick={handleAiRewrite} className="text-xs text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-4 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-purple-100 transition-colors" disabled={aiLoading}>
@@ -602,19 +602,19 @@ export const BlogManager = () => {
                     )}
                 </div>
             )}
-        </form>
 
-        {/* Sticky Action Bar */}
-        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-12 md:bottom-12 flex justify-end z-30 pointer-events-none">
-            <Button 
-                onClick={handleSavePost} 
-                size="lg"
-                className="shadow-2xl shadow-primary-600/40 rounded-full px-8 pointer-events-auto transform hover:scale-105 transition-all"
-            >
-                <Save size={20} className="mr-2" />
-                {t('save')}
-            </Button>
-        </div>
+            {/* Inline Action Bar */}
+            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end">
+                <Button 
+                    onClick={handleSavePost} 
+                    size="lg"
+                    className="shadow-2xl shadow-primary-600/40 rounded-full px-8 transform hover:scale-105 transition-all"
+                >
+                    <Save size={20} className="mr-2" />
+                    {t('save')}
+                </Button>
+            </div>
+        </form>
 
         {showMediaModal && (
             <MediaSelector 
