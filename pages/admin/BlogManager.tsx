@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Plus, Trash2, Edit2, PenTool, Folder, Image as ImageIcon, Settings, HelpCircle, Save, X, Search as SearchIcon, Sparkles, Tag, Pin, ArrowUp, ArrowDown, Eye, MessageSquare, ChevronLeft, FileText, CornerDownRight, GripVertical, Calendar, Globe } from 'lucide-react';
-import { BlogPost, BlogCategory, BlogTag } from '../../types';
+import { Plus, Trash2, Edit2, Folder, Image as ImageIcon, Settings, HelpCircle, Save, X, Search as SearchIcon, Sparkles, Tag, Pin, ArrowUp, ArrowDown, Eye, MessageSquare, ChevronLeft, FileText, CornerDownRight, GripVertical, Globe } from 'lucide-react';
+import { BlogPost, BlogCategory } from '../../types';
 import { MediaSelector } from '../../components/media/MediaSelector';
 import { RichTextEditor } from '../../components/ui/RichTextEditor';
 import { TagInput } from '../../components/ui/TagInput';
@@ -14,7 +14,7 @@ import { aiService } from '../../utils/ai';
 import { Link } from 'react-router-dom';
 
 export const BlogManager = () => {
-  const { t, posts, addPost, updatePost, deletePost, categories, addCategory, updateCategory, deleteCategory, reorderCategories, tags, addTag, deleteTag, user, lang, config, plugins, smartConfig, comments, isRTL } = useApp();
+  const { t, posts, addPost, updatePost, deletePost, categories, addCategory, updateCategory, deleteCategory, reorderCategories, tags, addTag, deleteTag, user, lang, plugins, smartConfig, comments } = useApp();
   const [activeTab, setActiveTab] = useState<'posts' | 'categories' | 'tags'>('posts');
   const [isEditing, setIsEditing] = useState(false);
   
