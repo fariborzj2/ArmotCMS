@@ -22,8 +22,12 @@ try {
 const handleAiError = (error: any) => {
     console.error("AI Service Error:", error);
     
-    let msg = error.message || "Unknown error";
+    // Check for GoogleGenAI specific error structure or standard Error
+    let msg = error.message || (typeof error === 'string' ? error : "Unknown error");
     
+    // Convert object message to string if needed
+    if (typeof msg === 'object') msg = JSON.stringify(msg);
+
     if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch') || msg.includes('CORS')) {
         throw new Error("Network Error: Unable to connect to Google AI. If you are in a restricted region, please ensure your VPN is active. Also check if your API Key is valid.");
     }
@@ -32,11 +36,11 @@ const handleAiError = (error: any) => {
         throw new Error("Authentication Failed: Please check your API Key in the configuration.");
     }
 
-    if (msg.includes('429')) {
-        throw new Error("Rate Limit Exceeded: You have made too many requests. Please wait a moment.");
+    if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
+        throw new Error("Rate Limit Exceeded: AI Image/Text quota exhausted. Please try again later.");
     }
 
-    throw new Error(`AI Service Error: ${msg}`);
+    throw new Error(`AI Service Error: ${msg.substring(0, 100)}...`);
 };
 
 // Helper to strip Markdown JSON code blocks and find the JSON object/array
@@ -327,7 +331,7 @@ export const aiService = {
     
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image', // Using flash-image for speed
+            model: 'gemini-2.5-flash-image', 
             contents: {
                 parts: [{ text: fullPrompt }]
             }
@@ -341,8 +345,8 @@ export const aiService = {
         }
         return null;
     } catch (error) {
-        console.error("AI Image Gen Error:", error);
-        return null; // Fail gracefully for images
+        // We throw so the calling component can decide to show a warning while preserving text content
+        return handleAiError(error);
     }
   }
 };

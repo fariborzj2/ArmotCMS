@@ -183,12 +183,21 @@ export const BlogManager = () => {
       const allowedTagNames = tags.map(t => t.name);
 
       try {
+          // 1. Generate Text
           const result = await aiService.generatePost(editPost.title, smartConfig.preferredModel, existingPostsContext, allowedTagNames);
           
           let generatedImage = editPost.featuredImage;
+          
+          // 2. Generate Image (with separate catch)
           if (smartConfig.enableImageGen && result.title) {
-              const imageBase64 = await aiService.generateBlogImage(result.title);
-              if (imageBase64) generatedImage = imageBase64;
+              try {
+                const imageBase64 = await aiService.generateBlogImage(result.title);
+                if (imageBase64) generatedImage = imageBase64;
+              } catch (imgError: any) {
+                console.error(imgError);
+                // Alert the user but continue setting the text content
+                alert(t('ai_error') + " (Image quota exceeded, but text was generated)");
+              }
           }
 
           if(result) {

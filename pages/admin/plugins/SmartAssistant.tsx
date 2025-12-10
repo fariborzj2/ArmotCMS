@@ -38,18 +38,23 @@ export const SmartAssistant = () => {
 
     try {
       let result;
+      // 1. Generate Text Content
       if (mode === 'topic') {
         result = await aiService.generatePost(input, smartConfig.preferredModel, existingPosts, allowedTagNames);
       } else {
-        // Crawler Mode
         result = await aiService.crawlAndRewrite(input, smartConfig.preferredModel, existingPosts, allowedTagNames);
       }
       
-      // Generate Image if enabled
+      // 2. Generate Image (Separate Try-Catch)
       if (smartConfig.enableImageGen && result.title) {
-          const imageBase64 = await aiService.generateBlogImage(result.title);
-          if (imageBase64) {
-              result.featuredImage = imageBase64;
+          try {
+            const imageBase64 = await aiService.generateBlogImage(result.title);
+            if (imageBase64) {
+                result.featuredImage = imageBase64;
+            }
+          } catch (imgError: any) {
+            console.error(imgError);
+            setErrorMsg(t('ai_error') + " (Image quota exceeded, but text was generated)");
           }
       }
 
