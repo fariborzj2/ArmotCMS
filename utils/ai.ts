@@ -9,10 +9,10 @@ try {
   // @ts-ignore
   const apiKey = typeof process !== "undefined" ? process.env?.API_KEY : undefined;
   
-  if (apiKey) {
+  if (apiKey && apiKey !== 'undefined' && apiKey !== '') {
     ai = new GoogleGenAI({ apiKey });
   } else {
-    console.warn("ArmotCMS: AI features disabled. API_KEY is missing in process.env");
+    console.warn("ArmotCMS: AI features disabled. API_KEY is missing or invalid in process.env");
   }
 } catch (e) {
   console.warn("ArmotCMS: Failed to initialize AI SDK", e);
@@ -21,10 +21,22 @@ try {
 // Helper to handle API errors, specifically looking for network/CORS/VPN issues
 const handleAiError = (error: any) => {
     console.error("AI Service Error:", error);
-    if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('Failed to fetch'))) {
-        throw new Error("Connection failed. If you are in a restricted region, please ensure your VPN (V) is active and supports Google APIs.");
+    
+    let msg = error.message || "Unknown error";
+    
+    if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch') || msg.includes('CORS')) {
+        throw new Error("Network Error: Unable to connect to Google AI. If you are in a restricted region, please ensure your VPN is active. Also check if your API Key is valid.");
     }
-    throw error;
+    
+    if (msg.includes('401') || msg.includes('403')) {
+        throw new Error("Authentication Failed: Please check your API Key in the configuration.");
+    }
+
+    if (msg.includes('429')) {
+        throw new Error("Rate Limit Exceeded: You have made too many requests. Please wait a moment.");
+    }
+
+    throw new Error(`AI Service Error: ${msg}`);
 };
 
 // Helper to strip Markdown JSON code blocks and find the JSON object/array
@@ -128,7 +140,7 @@ export const aiService = {
    * Simulates a Crawl & Rewrite process. 
    */
   crawlAndRewrite: async (sourceText: string, model: string = 'gemini-2.5-flash', existingPosts: {title: string, slug: string}[] = [], availableTags: string[] = []): Promise<Partial<BlogPost>> => {
-    if (!ai) throw new Error("AI API Key is missing.");
+    if (!ai) throw new Error("AI API Key is missing. Please check your configuration.");
 
     const isUrl = sourceText.startsWith('http');
     const internalLinksPrompt = existingPosts.length > 0 ? `
@@ -190,7 +202,7 @@ export const aiService = {
    * Rewrites content to be more engaging or SEO friendly.
    */
   rewriteContent: async (content: string, model: string = 'gemini-2.5-flash') => {
-    if (!ai) throw new Error("AI API Key is missing.");
+    if (!ai) throw new Error("AI API Key is missing. Please check your configuration.");
 
     const prompt = `Rewrite the following Persian text to be more engaging, journalistic, and SEO-friendly. 
     Maintain strict HTML structure. Add <strong> for emphasis and ensure headings are correct.
@@ -241,9 +253,8 @@ export const aiService = {
         });
         return cleanJSON(response.text || '{}');
     } catch (error) {
-        // Silent fail for small features
         console.error("AI Comment Analysis Error:", error);
-        return null;
+        return null; // Fail gracefully for analysis
     }
   },
 
@@ -251,7 +262,7 @@ export const aiService = {
    * Summarizes a long article for the frontend user.
    */
   summarize: async (content: string, model: string = 'gemini-2.5-flash') => {
-    if (!ai) throw new Error("AI API Key is missing.");
+    if (!ai) throw new Error("AI API Key is missing. Please check your configuration.");
 
     const prompt = `Summarize the following article in Persian into 3 concise bullet points. Return as HTML <ul><li>...</li></ul>. \n\n Article: ${content.substring(0, 5000)}`;
     
@@ -267,33 +278,10 @@ export const aiService = {
   },
 
   /**
-   * Extracts Key Highlights.
-   */
-  extractHighlights: async (content: string, model: string = 'gemini-2.5-flash') => {
-    if (!ai) return null;
-
-    const prompt = `
-      Extract 3-5 specific "Key Highlights" (facts, numbers, or main takeaways) from this text. 
-      CRITICAL: The output MUST be in Persian language, regardless of the source text language.
-      Format as HTML <ul><li>...</li></ul>. 
-      \n\n Text: ${content.substring(0, 5000)}
-    `;
-    try {
-        const response = await ai.models.generateContent({
-            model: model,
-            contents: prompt,
-        });
-        return response.text;
-    } catch (error) {
-        return null;
-    }
-  },
-
-  /**
    * Smart Scheduler: Suggests posting times.
    */
   optimizeSchedule: async (existingDates: string[], model: string = 'gemini-2.5-flash'): Promise<ScheduleSlot[]> => {
-    if (!ai) throw new Error("AI API Key is missing.");
+    if (!ai) throw new Error("AI API Key is missing. Please check your configuration.");
 
     const prompt = `
       Act as a Content Strategist for a Persian blog.
@@ -339,7 +327,7 @@ export const aiService = {
     
     try {
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image', // Using flash-image for speed as requested
+            model: 'gemini-2.5-flash-image', // Using flash-image for speed
             contents: {
                 parts: [{ text: fullPrompt }]
             }
@@ -353,9 +341,8 @@ export const aiService = {
         }
         return null;
     } catch (error) {
-        // Silent fail for image gen to not block text
         console.error("AI Image Gen Error:", error);
-        return null;
+        return null; // Fail gracefully for images
     }
   }
 };

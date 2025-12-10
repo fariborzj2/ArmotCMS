@@ -81,8 +81,8 @@ export const CommentManager = () => {
             setReplyContent(result.suggestedReply);
             setDailyUsage(prev => prev + 1); // Increment usage
         }
-      } catch (e) {
-        console.error(e);
+      } catch (e: any) {
+        console.error(e.message);
       }
       setAiLoading(false);
   };

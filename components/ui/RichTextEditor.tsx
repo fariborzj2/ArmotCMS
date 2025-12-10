@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
+import { FileText, Type } from 'lucide-react';
 
 declare var tinymce: any;
 
@@ -18,35 +19,37 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   height = 400,
   placeholder 
 }) => {
-  const { themeMode } = useApp();
+  const { themeMode, t } = useApp();
   const editorRef = useRef<any>(null);
+  const [isBasicMode, setIsBasicMode] = useState(false);
+  const [initError, setInitError] = useState(false);
 
-  // Sync value updates from parent if editor is ready and content is different
+  // Sync value updates from parent
   useEffect(() => {
-    if (editorRef.current) {
+    if (!isBasicMode && editorRef.current) {
        const currentContent = editorRef.current.getContent();
-       // Only set content if it's strictly different to avoid cursor jumping
-       // and loops. 
        if (value !== currentContent) {
-          // Check if the editor is focused to avoid disrupting user typing
-          // Only update if value is externally changed (e.g. loading data)
-          // For simplicity in this CMS, we trust the key prop in parent to handle
-          // major state changes (switching pages) and this effect handles 
-          // initial load latency.
           editorRef.current.setContent(value || '');
        }
     }
-  }, [value]);
+  }, [value, isBasicMode]);
 
   useEffect(() => {
+    if (isBasicMode) {
+      if (tinymce && tinymce.get(id)) tinymce.remove(`#${id}`);
+      return;
+    }
+
     if (typeof tinymce === 'undefined') {
       console.error('TinyMCE not loaded');
+      setInitError(true);
+      setIsBasicMode(true);
       return;
     }
 
     const isDark = themeMode === 'dark';
 
-    // Ensure any previous instance is removed before initializing
+    // Cleanup previous instance
     if (tinymce.get(id)) {
       tinymce.remove(`#${id}`);
     }
@@ -82,6 +85,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             }
         });
       }
+    }).catch((err: any) => {
+        console.warn("TinyMCE initialization failed:", err);
+        setInitError(true);
+        setIsBasicMode(true);
     });
 
     return () => {
@@ -92,14 +99,43 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         console.error('Error removing editor', e);
       }
     };
-  }, [id, themeMode]); // Re-init if ID or Theme changes
+  }, [id, themeMode, isBasicMode]);
 
   return (
-    <textarea 
-      id={id} 
-      // Do not use defaultValue/value here to avoid React warnings vs TinyMCE DOM manipulation
-      style={{ visibility: 'visible' }} 
-      placeholder={placeholder}
-    ></textarea>
+    <div className="relative">
+        <div className="flex justify-end mb-2">
+            <button 
+                type="button" 
+                onClick={() => setIsBasicMode(!isBasicMode)}
+                className="text-xs text-gray-500 hover:text-primary-600 flex items-center gap-1 transition-colors"
+            >
+                {isBasicMode ? <FileText size={14} /> : <Type size={14} />}
+                {isBasicMode ? 'Switch to Visual Editor' : 'Switch to Text Editor'}
+            </button>
+        </div>
+
+        {isBasicMode ? (
+            <div className="animate-fadeIn">
+                {initError && (
+                    <div className="mb-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 rounded-lg border border-amber-100 dark:border-amber-900/50">
+                        Visual editor failed to load (likely due to browser restrictions). Switched to text mode.
+                    </div>
+                )}
+                <textarea
+                    className="w-full p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500 outline-none text-gray-900 dark:text-gray-100 font-mono text-sm leading-relaxed"
+                    style={{ height: height }}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                />
+            </div>
+        ) : (
+            <textarea 
+                id={id} 
+                style={{ visibility: 'hidden' }} 
+                placeholder={placeholder}
+            ></textarea>
+        )}
+    </div>
   );
 };

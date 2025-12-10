@@ -170,8 +170,8 @@ export const BlogManager = () => {
       try {
           const rewritten = await aiService.rewriteContent(editPost.content, smartConfig.preferredModel);
           if (rewritten) setEditPost({ ...editPost, content: rewritten });
-      } catch (e) {
-          alert('AI Error: Check console');
+      } catch (e: any) {
+          alert(e.message);
       }
       setAiLoading(false);
   };
@@ -202,8 +202,8 @@ export const BlogManager = () => {
                   featuredImage: generatedImage
               });
           }
-      } catch (e) {
-          alert('AI Generation Failed');
+      } catch (e: any) {
+          alert(e.message);
       }
       setAiLoading(false);
   };

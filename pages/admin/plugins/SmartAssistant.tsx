@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
-import { Sparkles, Calendar, Settings, FileText, CheckCircle, Clock, Link as LinkIcon, Edit3, Globe, List, Plus, Trash2 } from 'lucide-react';
+import { Sparkles, Calendar, Settings, FileText, CheckCircle, Clock, Link as LinkIcon, Edit3, Globe, List, Plus, Trash2, AlertCircle } from 'lucide-react';
 import { aiService } from '../../../utils/ai';
 import { ScheduleSlot, BlogPost, CrawlerSource } from '../../../types';
 
@@ -15,6 +15,7 @@ export const SmartAssistant = () => {
   const [input, setInput] = useState('');
   const [generatedDraft, setGeneratedDraft] = useState<Partial<BlogPost> | null>(null);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Scheduler State
   const [scheduleSlots, setScheduleSlots] = useState<ScheduleSlot[]>([]);
@@ -29,6 +30,7 @@ export const SmartAssistant = () => {
     if (!input) return;
     setLoading(true);
     setGeneratedDraft(null);
+    setErrorMsg('');
     
     // Prepare internal linking context and allowed tags
     const existingPosts = posts.map(p => ({ title: p.title, slug: `${p.id}-${p.slug}` }));
@@ -52,8 +54,8 @@ export const SmartAssistant = () => {
       }
 
       setGeneratedDraft(result);
-    } catch (e) {
-      alert(t('ai_error'));
+    } catch (e: any) {
+      setErrorMsg(e.message || t('ai_error'));
     }
     setLoading(false);
   };
@@ -78,12 +80,13 @@ export const SmartAssistant = () => {
   // --- Scheduler Handlers ---
   const handleOptimizeSchedule = async () => {
     setScheduleLoading(true);
+    setErrorMsg('');
     const dates = posts.map(p => p.publishDate || p.createdAt);
     try {
         const slots = await aiService.optimizeSchedule(dates, smartConfig.preferredModel);
         setScheduleSlots(slots);
-    } catch (e) {
-        alert(t('ai_error'));
+    } catch (e: any) {
+        setErrorMsg(e.message || t('ai_error'));
     }
     setScheduleLoading(false);
   };
@@ -161,20 +164,27 @@ export const SmartAssistant = () => {
          </button>
       </div>
 
+      {errorMsg && (
+          <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-4 rounded-xl flex items-center gap-3 border border-red-100 dark:border-red-800">
+              <AlertCircle size={20} />
+              <p className="text-sm font-medium">{errorMsg}</p>
+          </div>
+      )}
+
       {/* --- FACTORY TAB --- */}
       {activeTab === 'factory' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
            <Card>
               <div className="flex bg-gray-50 dark:bg-gray-900/50 p-1.5 rounded-2xl mb-6">
                   <button 
-                    onClick={() => { setMode('topic'); setInput(''); }}
+                    onClick={() => { setMode('topic'); setInput(''); setErrorMsg(''); }}
                     className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${mode === 'topic' ? 'bg-white dark:bg-gray-800 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-gray-500'}`}
                   >
                       <Edit3 size={16} />
                       {t('generator_mode')}
                   </button>
                   <button 
-                    onClick={() => { setMode('crawler'); setInput(''); }}
+                    onClick={() => { setMode('crawler'); setInput(''); setErrorMsg(''); }}
                     className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${mode === 'crawler' ? 'bg-white dark:bg-gray-800 text-orange-700 dark:text-orange-300 shadow-sm' : 'text-gray-500'}`}
                   >
                       <LinkIcon size={16} />
