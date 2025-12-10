@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Plus, Trash2, Edit2, PenTool, Folder, Image as ImageIcon, Settings, HelpCircle, Save, X, Search as SearchIcon, Sparkles, Tag, Pin, ArrowUp, ArrowDown, Eye, MessageSquare, ChevronLeft, FileText, CornerDownRight, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Edit2, PenTool, Folder, Image as ImageIcon, Settings, HelpCircle, Save, X, Search as SearchIcon, Sparkles, Tag, Pin, ArrowUp, ArrowDown, Eye, MessageSquare, ChevronLeft, FileText, CornerDownRight, GripVertical, Calendar, Globe } from 'lucide-react';
 import { BlogPost, BlogCategory, BlogTag } from '../../types';
 import { MediaSelector } from '../../components/media/MediaSelector';
 import { RichTextEditor } from '../../components/ui/RichTextEditor';
@@ -25,9 +25,6 @@ export const BlogManager = () => {
   
   // Sorting State
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'createdAt', direction: 'desc' });
-
-  // Post Edit Tabs
-  const [editTab, setEditTab] = useState<'content' | 'settings' | 'faqs'>('content');
 
   const [editPost, setEditPost] = useState<Partial<BlogPost>>({});
   const [editCategory, setEditCategory] = useState<Partial<BlogCategory>>({});
@@ -83,12 +80,11 @@ export const BlogManager = () => {
   };
 
   // Modern Minimal Inputs
-  const inputClass = "w-full px-5 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border-2 border-transparent hover:bg-white hover:border-gray-200 dark:hover:bg-gray-900 dark:hover:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/30 focus:ring-4 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all duration-300 text-sm font-medium";
-  const labelClass = "block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2.5 ml-1";
+  const inputClass = "w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all text-sm";
+  const labelClass = "block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide";
 
   // --- POST LOGIC ---
   const startEditPost = (post?: BlogPost) => {
-    setEditTab('content');
     if (post) {
       setEditPost(JSON.parse(JSON.stringify(post)));
     } else {
@@ -175,7 +171,7 @@ export const BlogManager = () => {
           const rewritten = await aiService.rewriteContent(editPost.content, smartConfig.preferredModel);
           if (rewritten) setEditPost({ ...editPost, content: rewritten });
       } catch (e) {
-          alert('AI Error');
+          alert('AI Error: Check console');
       }
       setAiLoading(false);
   };
@@ -327,294 +323,260 @@ export const BlogManager = () => {
 
   if (isEditing) {
     return (
-      <div className="space-y-6 pb-12">
-        <div className="flex items-center gap-4">
-             <button onClick={() => setIsEditing(false)} className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+      <form onSubmit={handleSavePost} className="pb-12 animate-fadeIn">
+        <div className="flex items-center gap-4 mb-6">
+             <button type="button" onClick={() => setIsEditing(false)} className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
                 <ChevronLeft size={24} className="rtl:rotate-180" />
             </button>
              <h1 className="text-2xl font-black dark:text-white">{editPost.id ? t('edit') : t('add_post')}</h1>
         </div>
 
-        {/* Segmented Control */}
-        <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-2xl flex relative overflow-hidden w-full md:w-auto">
-             {['content', 'settings', 'faqs'].map((tab) => (
-                 <button
-                    key={tab}
-                    onClick={() => setEditTab(tab as any)}
-                    className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all relative z-10 ${
-                        editTab === tab 
-                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md' 
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                    }`}
-                 >
-                    {t(tab === 'content' ? 'content' : tab === 'settings' ? 'post_settings' : 'faqs')}
-                 </button>
-             ))}
-        </div>
-
-        <form onSubmit={handleSavePost} className="space-y-6 animate-fadeIn">
-            {editTab === 'content' && (
-                <>
-                    <Card className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="md:col-span-2 flex items-end gap-3">
-                                 <div className="flex-1">
-                                    <label className={labelClass}>{t('title')}</label>
-                                    <input 
-                                        type="text" 
-                                        value={editPost.title}
-                                        onChange={e => setEditPost({...editPost, title: e.target.value})}
-                                        className={inputClass}
-                                        required
-                                    />
-                                 </div>
-                                 {isSmartActive && (
-                                    <Button type="button" onClick={handleAiGenerate} isLoading={aiLoading} className="mb-0.5 h-[52px] w-[52px] rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/30 p-0 flex items-center justify-center" title={t('generate_post')}>
-                                       <Sparkles size={20} />
-                                    </Button>
-                                 )}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Main Content Column */}
+            <div className="lg:col-span-8 space-y-6">
+                <Card className="p-6">
+                    <div className="space-y-4">
+                        <div className="flex gap-3 items-end">
+                            <div className="flex-1">
+                                <label className={labelClass}>{t('title')}</label>
+                                <input 
+                                    type="text" 
+                                    value={editPost.title}
+                                    onChange={e => setEditPost({...editPost, title: e.target.value})}
+                                    className={`${inputClass} text-lg font-bold`}
+                                    placeholder={t('example_title')}
+                                    required
+                                />
                             </div>
-                            <div>
-                                <label className={labelClass}>{t('slug')}</label>
+                            {isSmartActive && (
+                                <Button type="button" onClick={handleAiGenerate} isLoading={aiLoading} className="mb-0.5 h-[48px] w-[48px] rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/30 p-0 flex items-center justify-center" title={t('generate_post')}>
+                                    <Sparkles size={20} />
+                                </Button>
+                            )}
+                        </div>
+                        
+                        <div>
+                            <label className={labelClass}>{t('slug')}</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 rtl:pl-0 rtl:right-0 rtl:pr-3 flex items-center pointer-events-none text-gray-400">
+                                    <Globe size={16} />
+                                </div>
                                 <input 
                                     type="text" 
                                     value={editPost.slug}
                                     onChange={e => setEditPost({...editPost, slug: e.target.value})}
-                                    className={inputClass}
+                                    className={`${inputClass} pl-10 rtl:pl-4 rtl:pr-10 font-mono text-xs`}
                                     required
                                 />
                             </div>
                         </div>
+                    </div>
+                </Card>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className={labelClass}>{t('category')}</label>
-                                <div className="relative">
-                                    <select 
-                                        value={editPost.categoryId}
-                                        onChange={e => setEditPost({...editPost, categoryId: e.target.value})}
-                                        className={`${inputClass} appearance-none cursor-pointer`}
-                                    >
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                    </select>
-                                    <div className="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 pointer-events-none text-gray-400">
-                                        <ChevronLeft size={16} className="-rotate-90" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className={labelClass}>{t('status')}</label>
-                                <div className="flex items-center gap-4">
-                                    <div className="relative flex-1">
-                                        <select 
-                                            value={editPost.status}
-                                            onChange={e => setEditPost({...editPost, status: e.target.value as any})}
-                                            className={`${inputClass} appearance-none cursor-pointer`}
-                                        >
-                                            <option value="draft">{t('draft')}</option>
-                                            <option value="published">{t('published')}</option>
-                                        </select>
-                                        <div className="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 pointer-events-none text-gray-400">
-                                            <ChevronLeft size={16} className="-rotate-90" />
-                                        </div>
-                                    </div>
-                                    <label className="flex items-center gap-2 cursor-pointer bg-orange-50 dark:bg-orange-900/10 hover:bg-orange-100 dark:hover:bg-orange-900/20 px-4 py-3.5 rounded-2xl border-2 border-transparent transition-colors">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={editPost.pinned || false}
-                                            onChange={e => setEditPost({...editPost, pinned: e.target.checked})}
-                                            className="w-5 h-5 text-orange-500 rounded focus:ring-orange-500"
-                                        />
-                                        <span className="text-sm font-bold text-orange-700 dark:text-orange-400">{t('pin_post')}</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
+                <Card className="p-6 min-h-[500px] flex flex-col">
+                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                        <label className={labelClass}>{t('content')}</label>
+                        {isSmartActive && (
+                            <button type="button" onClick={handleAiRewrite} className="text-xs text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 hover:bg-purple-100 transition-colors" disabled={aiLoading}>
+                                <Sparkles size={14} /> {t('rewrite')}
+                            </button>
+                        )}
+                    </div>
+                    <div className="flex-1">
+                        <RichTextEditor 
+                            key={editPost.id || 'new'}
+                            id="blog-content-editor"
+                            value={editPost.content || ''}
+                            onChange={(content) => setEditPost({...editPost, content})}
+                            height={500}
+                        />
+                    </div>
+                </Card>
 
-                        <div>
-                            <label className={labelClass}>{t('featured_image')}</label>
-                            <div className="flex gap-2">
-                                <input 
-                                    type="text" 
-                                    value={editPost.featuredImage}
-                                    onChange={e => setEditPost({...editPost, featuredImage: e.target.value})}
-                                    className={inputClass}
-                                />
-                                <Button type="button" variant="secondary" size="icon" onClick={() => setShowMediaModal(true)} className="rounded-2xl shrink-0">
-                                    <ImageIcon size={20} />
-                                </Button>
-                            </div>
-                            {editPost.featuredImage && (
-                                <img src={editPost.featuredImage} alt="preview" className="mt-4 h-40 w-full md:w-80 object-cover rounded-3xl border-4 border-gray-50 dark:border-gray-800 shadow-md" />
-                            )}
-                        </div>
-
+                <Card className="p-6">
+                    <div className="flex items-center gap-2 mb-4 border-b border-gray-100 dark:border-gray-800 pb-2">
+                        <Settings size={18} className="text-primary-500" />
+                        <h3 className="font-bold dark:text-white">{t('tab_seo')}</h3>
+                    </div>
+                    <div className="space-y-4">
                         <div>
                             <label className={labelClass}>{t('excerpt')}</label>
                             <textarea 
                                 value={editPost.excerpt}
                                 onChange={e => setEditPost({...editPost, excerpt: e.target.value})}
-                                className={`${inputClass} h-32 resize-none`}
+                                className={`${inputClass} h-24 resize-none`}
                             />
                         </div>
-
-                        <div>
-                            <label className={labelClass}>{t('tags')}</label>
-                            <TagInput 
-                               value={editPost.tags || []}
-                               onChange={tags => setEditPost({...editPost, tags})}
-                               placeholder={t('tags_placeholder')}
-                            />
-                        </div>
-                    </Card>
-
-                    <Card className="p-6 shadow-md">
-                        <div className="pb-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 mb-4">
-                            <label className={labelClass}>{t('content')}</label>
-                            {isSmartActive && (
-                                <button type="button" onClick={handleAiRewrite} className="text-xs text-purple-600 bg-purple-50 dark:bg-purple-900/20 px-4 py-2 rounded-full font-bold flex items-center gap-2 hover:bg-purple-100 transition-colors" disabled={aiLoading}>
-                                    <Sparkles size={14} /> {t('rewrite')}
-                                </button>
-                            )}
-                        </div>
-                        <div className="min-h-[500px]">
-                            <RichTextEditor 
-                                key={editPost.id || 'new'}
-                                id="blog-content-editor"
-                                value={editPost.content || ''}
-                                onChange={(content) => setEditPost({...editPost, content})}
-                                height={500}
-                            />
-                        </div>
-                    </Card>
-                </>
-            )}
-            
-            {editTab === 'settings' && (
-                <Card className="space-y-6">
-                    <div>
-                        <label className={labelClass}>{t('meta_title')}</label>
-                        <input 
-                            type="text" 
-                            value={editPost.metaTitle || ''}
-                            onChange={e => setEditPost({...editPost, metaTitle: e.target.value})}
-                            className={inputClass}
-                            placeholder={editPost.title}
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className={labelClass}>{t('meta_desc')}</label>
-                        <textarea 
-                            value={editPost.metaDescription || ''}
-                            onChange={e => setEditPost({...editPost, metaDescription: e.target.value})}
-                            className={`${inputClass} h-32 resize-none`}
-                            placeholder={editPost.excerpt}
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>{t('keywords')}</label>
-                        <TagInput 
-                           value={editPost.keywords || []}
-                           onChange={keywords => setEditPost({...editPost, keywords})}
-                           placeholder={t('keywords_hint')}
-                        />
-                    </div>
-
-                    <div>
-                        <label className={labelClass}>{t('schema_type')}</label>
-                        <div className="relative">
-                            <select 
-                                value={editPost.schemaType || 'Article'}
-                                onChange={e => setEditPost({...editPost, schemaType: e.target.value as any})}
-                                className={`${inputClass} appearance-none cursor-pointer`}
-                            >
-                                <option value="Article">Article (Standard)</option>
-                                <option value="NewsArticle">News Article (For News)</option>
-                                <option value="BlogPosting">Blog Posting (Personal)</option>
-                            </select>
-                            <div className="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 pointer-events-none text-gray-400">
-                                <ChevronLeft size={16} className="-rotate-90" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className={labelClass}>{t('meta_title')}</label>
+                                <input 
+                                    type="text" 
+                                    value={editPost.metaTitle || ''}
+                                    onChange={e => setEditPost({...editPost, metaTitle: e.target.value})}
+                                    className={inputClass}
+                                />
+                            </div>
+                            <div>
+                                <label className={labelClass}>{t('meta_desc')}</label>
+                                <input 
+                                    type="text" 
+                                    value={editPost.metaDescription || ''}
+                                    onChange={e => setEditPost({...editPost, metaDescription: e.target.value})}
+                                    className={inputClass}
+                                />
                             </div>
                         </div>
                     </div>
-
-                    <div>
-                        <PersianDatePicker 
-                            label={t('publish_date')}
-                            value={editPost.publishDate}
-                            onChange={isoDate => setEditPost({...editPost, publishDate: isoDate})}
-                        />
-                    </div>
                 </Card>
-            )}
 
-            {editTab === 'faqs' && (
-                <div className="space-y-4 animate-fadeIn">
-                    {(!editPost.faqs || editPost.faqs.length === 0) && (
-                        <div className="flex flex-col items-center justify-center py-16 bg-gray-50 dark:bg-gray-900 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-800">
-                            <HelpCircle size={40} className="text-gray-300 mb-2" />
-                            <p className="text-gray-500 font-medium">No FAQs added yet.</p>
-                            <Button type="button" variant="ghost" size="sm" onClick={addFAQ} className="mt-4 text-primary-600 bg-white shadow-sm">
-                                {t('add_faq')}
-                            </Button>
+                <Card className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <HelpCircle size={18} className="text-primary-500" />
+                            <h3 className="font-bold dark:text-white">{t('faqs')}</h3>
                         </div>
-                    )}
-
-                    {editPost.faqs?.map((faq, index) => (
-                        <Card key={index} className="relative group !p-6 border-l-4 border-l-primary-500">
-                            <button 
-                                type="button" 
-                                onClick={() => removeFAQ(index)}
-                                className="absolute top-4 right-4 rtl:right-auto rtl:left-4 p-2 bg-red-50 text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
-                            >
-                                <X size={18} />
-                            </button>
-                            <div className="grid grid-cols-1 gap-5">
-                                <div>
-                                    <label className={labelClass}>{t('question')}</label>
+                        <Button type="button" variant="ghost" size="sm" onClick={addFAQ}>
+                            <Plus size={16} />
+                        </Button>
+                    </div>
+                    <div className="space-y-3">
+                        {editPost.faqs?.map((faq, index) => (
+                            <div key={index} className="flex gap-2 items-start bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                <div className="flex-1 grid grid-cols-1 gap-2">
                                     <input 
                                         type="text" 
                                         value={faq.question}
                                         onChange={e => handleFAQChange(index, 'question', e.target.value)}
                                         className={inputClass}
-                                        placeholder="e.g. Is this compatible?"
+                                        placeholder={t('question')}
                                     />
-                                </div>
-                                <div>
-                                    <label className={labelClass}>{t('answer')}</label>
                                     <textarea 
                                         value={faq.answer}
                                         onChange={e => handleFAQChange(index, 'answer', e.target.value)}
-                                        className={`${inputClass} h-24 resize-none`}
-                                        placeholder="Yes, it is..."
+                                        className={`${inputClass} h-20 resize-none`}
+                                        placeholder={t('answer')}
                                     />
                                 </div>
+                                <button type="button" onClick={() => removeFAQ(index)} className="p-2 text-red-500 hover:bg-red-100 rounded-lg">
+                                    <X size={16} />
+                                </button>
                             </div>
-                        </Card>
-                    ))}
-                    
-                    {editPost.faqs && editPost.faqs.length > 0 && (
-                        <Button type="button" variant="secondary" onClick={addFAQ} className="w-full rounded-2xl border-dashed border-2 py-4 justify-center">
-                            <Plus size={20} className="mr-2" /> {t('add_faq')}
-                        </Button>
-                    )}
-                </div>
-            )}
-
-            {/* Inline Action Bar */}
-            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end">
-                <Button 
-                    onClick={handleSavePost} 
-                    size="lg"
-                    className="shadow-2xl shadow-primary-600/40 rounded-full px-8 transform hover:scale-105 transition-all"
-                >
-                    <Save size={20} className="mr-2" />
-                    {t('save')}
-                </Button>
+                        ))}
+                        {(!editPost.faqs || editPost.faqs.length === 0) && (
+                            <p className="text-center text-gray-400 text-sm py-4">{t('no_results')}</p>
+                        )}
+                    </div>
+                </Card>
             </div>
-        </form>
+
+            {/* Sidebar Column */}
+            <div className="lg:col-span-4 space-y-6">
+                {/* Publish Card */}
+                <Card className="p-5 border-t-4 border-t-primary-500">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-bold dark:text-white text-lg">{t('status')}</h3>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${editPost.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                            {t(editPost.status || 'draft')}
+                        </span>
+                    </div>
+                    
+                    <div className="space-y-4 mb-6">
+                        <div>
+                            <label className={labelClass}>{t('status')}</label>
+                            <select 
+                                value={editPost.status}
+                                onChange={e => setEditPost({...editPost, status: e.target.value as any})}
+                                className={inputClass}
+                            >
+                                <option value="draft">{t('draft')}</option>
+                                <option value="published">{t('published')}</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label className={labelClass}>{t('publish_date')}</label>
+                            <PersianDatePicker 
+                                value={editPost.publishDate}
+                                onChange={isoDate => setEditPost({...editPost, publishDate: isoDate})}
+                            />
+                        </div>
+
+                        <label className="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors">
+                            <input 
+                                type="checkbox" 
+                                checked={editPost.pinned || false}
+                                onChange={e => setEditPost({...editPost, pinned: e.target.checked})}
+                                className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                            />
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('pin_post')}</span>
+                        </label>
+                    </div>
+
+                    <Button type="submit" className="w-full justify-center py-3 rounded-xl shadow-lg shadow-primary-500/20">
+                        <Save size={18} className="mr-2" />
+                        {t('save')}
+                    </Button>
+                </Card>
+
+                {/* Organization */}
+                <Card className="p-5">
+                    <h3 className="font-bold dark:text-white mb-4">{t('categories')}</h3>
+                    <div className="mb-4">
+                        <label className={labelClass}>{t('category')}</label>
+                        <select 
+                            value={editPost.categoryId}
+                            onChange={e => setEditPost({...editPost, categoryId: e.target.value})}
+                            className={inputClass}
+                        >
+                            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                    </div>
+                    <div>
+                        <label className={labelClass}>{t('tags')}</label>
+                        <TagInput 
+                            value={editPost.tags || []}
+                            onChange={tags => setEditPost({...editPost, tags})}
+                            placeholder={t('tags_placeholder')}
+                        />
+                    </div>
+                </Card>
+
+                {/* Featured Image */}
+                <Card className="p-5">
+                    <h3 className="font-bold dark:text-white mb-4">{t('featured_image')}</h3>
+                    <div className="space-y-3">
+                        <div className="relative aspect-video bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary-500 transition-colors group cursor-pointer" onClick={() => setShowMediaModal(true)}>
+                            {editPost.featuredImage ? (
+                                <img src={editPost.featuredImage} alt="Featured" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                                    <ImageIcon size={32} />
+                                    <span className="text-xs mt-2">{t('select_media')}</span>
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-white font-bold text-sm">{t('edit')}</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <input 
+                                type="text" 
+                                value={editPost.featuredImage || ''}
+                                onChange={e => setEditPost({...editPost, featuredImage: e.target.value})}
+                                className={`${inputClass} text-xs`}
+                                placeholder="URL..."
+                            />
+                            {editPost.featuredImage && (
+                                <button type="button" onClick={() => setEditPost({...editPost, featuredImage: ''})} className="p-3 text-red-500 hover:bg-red-50 rounded-xl border border-red-100">
+                                    <Trash2 size={16} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </Card>
+            </div>
+        </div>
 
         {showMediaModal && (
             <MediaSelector 
@@ -625,7 +587,7 @@ export const BlogManager = () => {
               }}
             />
         )}
-      </div>
+      </form>
     );
   }
 

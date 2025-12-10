@@ -18,6 +18,15 @@ try {
   console.warn("ArmotCMS: Failed to initialize AI SDK", e);
 }
 
+// Helper to handle API errors, specifically looking for network/CORS/VPN issues
+const handleAiError = (error: any) => {
+    console.error("AI Service Error:", error);
+    if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('Failed to fetch'))) {
+        throw new Error("Connection failed. If you are in a restricted region, please ensure your VPN (V) is active and supports Google APIs.");
+    }
+    throw error;
+};
+
 // Helper to strip Markdown JSON code blocks and find the JSON object/array
 const cleanJSON = (text: string) => {
   try {
@@ -111,8 +120,7 @@ export const aiService = {
       });
       return cleanJSON(response.text || '{}');
     } catch (error) {
-      console.error("AI Generation Error:", error);
-      throw error;
+      return handleAiError(error);
     }
   },
 
@@ -174,8 +182,7 @@ export const aiService = {
       });
       return cleanJSON(response.text || '{}');
     } catch (error) {
-      console.error("AI Rewrite Error:", error);
-      throw error;
+      return handleAiError(error);
     }
   },
 
@@ -196,8 +203,7 @@ export const aiService = {
         });
         return response.text;
     } catch (error) {
-        console.error("AI Rewrite Error:", error);
-        throw error;
+        return handleAiError(error);
     }
   },
 
@@ -235,6 +241,7 @@ export const aiService = {
         });
         return cleanJSON(response.text || '{}');
     } catch (error) {
+        // Silent fail for small features
         console.error("AI Comment Analysis Error:", error);
         return null;
     }
@@ -255,8 +262,7 @@ export const aiService = {
         });
         return response.text;
     } catch (error) {
-        console.error("AI Summary Error:", error);
-        throw error;
+        return handleAiError(error);
     }
   },
 
@@ -319,8 +325,7 @@ export const aiService = {
         });
         return cleanJSON(response.text || '[]');
     } catch (error) {
-        console.error("AI Scheduler Error:", error);
-        return [];
+        return handleAiError(error);
     }
   },
 
@@ -348,6 +353,7 @@ export const aiService = {
         }
         return null;
     } catch (error) {
+        // Silent fail for image gen to not block text
         console.error("AI Image Gen Error:", error);
         return null;
     }

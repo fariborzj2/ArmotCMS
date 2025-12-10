@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Plus, Trash2, Edit2, Eye, FileText, Check, X, Image as ImageIcon, Search as SearchIcon, PenTool, Settings, HelpCircle, Save, ChevronLeft } from 'lucide-react';
+import { Plus, Trash2, Edit2, Eye, FileText, Check, X, Image as ImageIcon, Search as SearchIcon, PenTool, Settings, HelpCircle, Save, ChevronLeft, Globe, Link as LinkIcon } from 'lucide-react';
 import { Page } from '../../types';
 import { MediaSelector } from '../../components/media/MediaSelector';
 import { RichTextEditor } from '../../components/ui/RichTextEditor';
@@ -16,7 +16,6 @@ export const ContentManager = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Page>>({});
   const [showMediaModal, setShowMediaModal] = useState(false);
-  const [editTab, setEditTab] = useState<'content' | 'settings' | 'faqs'>('content');
 
   // Search & Pagination
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +33,6 @@ export const ContentManager = () => {
   );
 
   const startEdit = (page?: Page) => {
-    setEditTab('content');
     if (page) {
       setEditForm(JSON.parse(JSON.stringify(page)));
     } else {
@@ -108,15 +106,14 @@ export const ContentManager = () => {
   };
 
   // Modern Input Styles
-  const inputClass = "w-full px-5 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border-2 border-transparent hover:bg-white hover:border-gray-200 dark:hover:bg-gray-900 dark:hover:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/30 focus:ring-4 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all duration-300 text-sm font-medium";
-  const labelClass = "block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2.5 ml-1";
+  const inputClass = "w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/50 focus:ring-2 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all text-sm";
+  const labelClass = "block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide";
 
   if (isEditing) {
     return (
-      <div className="space-y-6 pb-24">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-            <button onClick={() => setIsEditing(false)} className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+      <form onSubmit={handleSave} className="pb-12 animate-fadeIn">
+        <div className="flex items-center gap-4 mb-6">
+            <button type="button" onClick={() => setIsEditing(false)} className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
                 <ChevronLeft size={24} className="rtl:rotate-180" />
             </button>
             <h1 className="text-2xl font-black dark:text-white">
@@ -124,283 +121,236 @@ export const ContentManager = () => {
             </h1>
         </div>
 
-        {/* Modern Segmented Control Tabs */}
-        <div className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-2xl flex relative overflow-hidden w-full md:w-auto">
-             {['content', 'settings', 'faqs'].map((tab) => (
-                 <button
-                    key={tab}
-                    onClick={() => setEditTab(tab as any)}
-                    className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all relative z-10 ${
-                        editTab === tab 
-                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md' 
-                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-                    }`}
-                 >
-                    {t(tab === 'content' ? 'content' : tab === 'settings' ? 'post_settings' : 'faqs')}
-                 </button>
-             ))}
-        </div>
-
-        <form onSubmit={handleSave} className="space-y-6 animate-fadeIn">
-            {editTab === 'content' && (
-                <>
-                    <Card className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className={labelClass}>{t('title')}</label>
-                                <input 
-                                    type="text" 
-                                    value={editForm.title}
-                                    onChange={e => setEditForm({...editForm, title: e.target.value})}
-                                    className={inputClass}
-                                    placeholder={t('example_title')}
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className={labelClass}>{t('slug')}</label>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Main Column */}
+            <div className="lg:col-span-8 space-y-6">
+                <Card className="p-6">
+                    <div className="space-y-4">
+                        <div>
+                            <label className={labelClass}>{t('title')}</label>
+                            <input 
+                                type="text" 
+                                value={editForm.title}
+                                onChange={e => setEditForm({...editForm, title: e.target.value})}
+                                className={`${inputClass} text-lg font-bold`}
+                                placeholder={t('example_title')}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className={labelClass}>{t('slug')}</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 rtl:pl-0 rtl:right-0 rtl:pr-3 flex items-center pointer-events-none text-gray-400">
+                                    <Globe size={16} />
+                                </div>
                                 <input 
                                     type="text" 
                                     value={editForm.slug}
                                     onChange={e => setEditForm({...editForm, slug: e.target.value})}
-                                    className={inputClass}
+                                    className={`${inputClass} pl-10 rtl:pl-4 rtl:pr-10 font-mono text-xs`}
                                     placeholder={t('example_slug')}
                                     required
                                 />
                             </div>
                         </div>
+                    </div>
+                </Card>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className={labelClass}>{t('status')}</label>
-                                <div className="relative">
-                                    <select 
-                                        value={editForm.status}
-                                        onChange={e => setEditForm({...editForm, status: e.target.value as any})}
-                                        className={`${inputClass} appearance-none cursor-pointer`}
-                                    >
-                                        <option value="draft">{t('draft')}</option>
-                                        <option value="published">{t('published')}</option>
-                                    </select>
-                                    <div className="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 pointer-events-none text-gray-400">
-                                        <ChevronLeft size={16} className="-rotate-90" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <label className={labelClass}>{t('featured_image')}</label>
-                                <div className="flex gap-2">
-                                    <input 
-                                        type="text" 
-                                        value={editForm.featuredImage || ''}
-                                        onChange={e => setEditForm({...editForm, featuredImage: e.target.value})}
-                                        className={inputClass}
-                                        placeholder="https://..."
-                                    />
-                                    <Button type="button" variant="secondary" size="icon" onClick={() => setShowMediaModal(true)} className="rounded-2xl shrink-0">
-                                        <ImageIcon size={20} />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                <Card className="p-6 min-h-[500px] flex flex-col">
+                    <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                        <label className={labelClass}>{t('content')}</label>
+                    </div>
+                    <div className="flex-1">
+                        <RichTextEditor 
+                            key={editForm.id || 'new'}
+                            id="page-content-editor"
+                            value={editForm.content || ''}
+                            onChange={(content) => setEditForm({...editForm, content})}
+                            height={500}
+                        />
+                    </div>
+                </Card>
 
-                        {editForm.featuredImage && (
-                            <div className="relative rounded-3xl overflow-hidden h-48 w-full md:w-80 border-4 border-gray-100 dark:border-gray-800 shadow-md">
-                                <img src={editForm.featuredImage} alt="Preview" className="h-full w-full object-cover" />
-                                <button 
-                                    type="button" 
-                                    onClick={() => setEditForm({...editForm, featuredImage: ''})}
-                                    className="absolute top-3 right-3 bg-black/50 text-white p-1.5 rounded-full hover:bg-red-500 transition-colors backdrop-blur-sm"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                        )}
-
-                        <div>
-                            <label className={labelClass}>{t('excerpt')}</label>
-                            <textarea 
-                                value={editForm.excerpt || ''}
-                                onChange={e => setEditForm({...editForm, excerpt: e.target.value})}
-                                className={`${inputClass} h-32 resize-none`}
-                            />
-                        </div>
-                    </Card>
+                {/* SEO Card */}
+                <Card className="p-6">
+                    <div className="flex items-center gap-2 mb-4 border-b border-gray-100 dark:border-gray-800 pb-2">
+                        <Settings size={18} className="text-primary-500" />
+                        <h3 className="font-bold dark:text-white">{t('tab_seo')}</h3>
+                    </div>
                     
-                    <Card className="p-6 shadow-md">
-                        <div className="pb-4 border-b border-gray-100 dark:border-gray-800">
-                            <label className={labelClass}>{t('content')}</label>
-                        </div>
-                        <div className="min-h-[500px]">
-                            <RichTextEditor 
-                                key={editForm.id || 'new'}
-                                id="page-content-editor"
-                                value={editForm.content || ''}
-                                onChange={(content) => setEditForm({...editForm, content})}
-                                height={500}
-                            />
-                        </div>
-                    </Card>
-                </>
-            )}
-
-            {editTab === 'settings' && (
-                <div className="space-y-6">
-                     <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-3xl border border-gray-200 dark:border-gray-700">
-                        <h3 className="text-xs font-bold text-gray-500 mb-4 uppercase tracking-wide">{t('serp_preview')}</h3>
-                        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm max-w-xl">
+                    {/* SERP Preview */}
+                    <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-100 dark:border-gray-800 mb-6">
+                        <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase">{t('serp_preview')}</h3>
+                        <div className="bg-white p-4 rounded-lg shadow-sm max-w-lg border border-gray-100">
                             <div className="flex flex-col font-sans ltr text-left">
-                                <span className="text-sm text-[#202124] flex items-center gap-2 mb-1">
-                                    <div className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-[10px] font-bold text-gray-600 uppercase">
-                                        {config.siteName.charAt(0)}
-                                    </div>
-                                    <div className="flex flex-col">
-                                       <span className="text-sm text-[#202124] leading-tight">{config.siteName}</span>
-                                       <span className="text-xs text-gray-500 leading-tight">{window.location.host} › {editForm.slug || 'page-slug'}</span>
-                                    </div>
-                                </span>
-                                <h3 className="text-xl text-[#1a0dab] hover:underline cursor-pointer truncate font-medium mt-1">
+                                <span className="text-xs text-gray-500 truncate mb-1">{window.location.host} › {editForm.slug || 'slug'}</span>
+                                <h3 className="text-lg text-[#1a0dab] hover:underline cursor-pointer truncate font-medium">
                                     {editForm.metaTitle || editForm.title || 'Page Title'}
                                 </h3>
-                                <p className="text-sm text-[#4d5156] line-clamp-2 mt-1">
+                                <p className="text-xs text-[#4d5156] line-clamp-2">
                                     {editForm.metaDescription || editForm.excerpt || t('meta_desc_placeholder')}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <Card className="space-y-6">
+                    <div className="space-y-4">
                         <div>
-                            <label className={labelClass}>{t('meta_title')}</label>
-                            <input 
-                                type="text" 
-                                value={editForm.metaTitle || ''}
-                                onChange={e => setEditForm({...editForm, metaTitle: e.target.value})}
-                                className={inputClass}
-                                placeholder={editForm.title}
-                            />
-                        </div>
-                        
-                        <div>
-                            <label className={labelClass}>{t('meta_desc')}</label>
+                            <label className={labelClass}>{t('excerpt')}</label>
                             <textarea 
-                                value={editForm.metaDescription || ''}
-                                onChange={e => setEditForm({...editForm, metaDescription: e.target.value})}
-                                className={`${inputClass} h-24 resize-none`}
-                                placeholder={editForm.excerpt}
+                                value={editForm.excerpt || ''}
+                                onChange={e => setEditForm({...editForm, excerpt: e.target.value})}
+                                className={`${inputClass} h-20 resize-none`}
                             />
                         </div>
-
-                        <div>
-                            <label className={labelClass}>{t('keywords')}</label>
-                            <TagInput 
-                            value={editForm.keywords || []}
-                            onChange={keywords => setEditForm({...editForm, keywords})}
-                            placeholder={t('keywords_hint')}
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className={labelClass}>{t('meta_title')}</label>
+                                <input 
+                                    type="text" 
+                                    value={editForm.metaTitle || ''}
+                                    onChange={e => setEditForm({...editForm, metaTitle: e.target.value})}
+                                    className={inputClass}
+                                />
+                            </div>
+                            <div>
+                                <label className={labelClass}>{t('meta_desc')}</label>
+                                <input 
+                                    type="text" 
+                                    value={editForm.metaDescription || ''}
+                                    onChange={e => setEditForm({...editForm, metaDescription: e.target.value})}
+                                    className={inputClass}
+                                />
+                            </div>
                         </div>
-
                         <div>
                             <label className={labelClass}>{t('schema_type')}</label>
-                            <div className="relative">
-                                <select 
-                                    value={editForm.schemaType || 'WebPage'}
-                                    onChange={e => setEditForm({...editForm, schemaType: e.target.value as any})}
-                                    className={`${inputClass} appearance-none cursor-pointer`}
-                                >
-                                    <option value="WebPage">WebPage</option>
-                                    <option value="AboutPage">AboutPage</option>
-                                    <option value="ContactPage">ContactPage</option>
-                                    <option value="LandingPage">LandingPage</option>
-                                </select>
-                                <div className="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 pointer-events-none text-gray-400">
-                                    <ChevronLeft size={16} className="-rotate-90" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <PersianDatePicker 
-                                label={t('publish_date')}
-                                value={editForm.publishDate}
-                                onChange={isoDate => setEditForm({...editForm, publishDate: isoDate})}
-                            />
-                        </div>
-                    </Card>
-                </div>
-            )}
-
-            {editTab === 'faqs' && (
-                <div className="space-y-4 animate-fadeIn">
-                    <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-bold dark:text-white px-2 text-lg">{t('faqs')}</h3>
-                    </div>
-
-                    {(!editForm.faqs || editForm.faqs.length === 0) && (
-                        <div className="flex flex-col items-center justify-center py-16 bg-gray-50 dark:bg-gray-900 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-gray-800">
-                            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 text-gray-400">
-                                <HelpCircle size={32} />
-                            </div>
-                            <p className="text-gray-500 font-medium">No FAQs added yet.</p>
-                            <Button type="button" variant="ghost" size="sm" onClick={addFAQ} className="mt-4 text-primary-600 bg-white shadow-sm">
-                                {t('add_faq')}
-                            </Button>
-                        </div>
-                    )}
-
-                    {editForm.faqs?.map((faq, index) => (
-                        <Card key={index} className="relative group !p-6 border-l-4 border-l-primary-500">
-                            <button 
-                                type="button" 
-                                onClick={() => removeFAQ(index)}
-                                className="absolute top-4 right-4 rtl:right-auto rtl:left-4 p-2 bg-red-50 text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100"
+                            <select 
+                                value={editForm.schemaType || 'WebPage'}
+                                onChange={e => setEditForm({...editForm, schemaType: e.target.value as any})}
+                                className={inputClass}
                             >
-                                <X size={18} />
-                            </button>
-                            <div className="grid grid-cols-1 gap-5">
-                                <div>
-                                    <label className={labelClass}>{t('question')}</label>
+                                <option value="WebPage">WebPage</option>
+                                <option value="AboutPage">AboutPage</option>
+                                <option value="ContactPage">ContactPage</option>
+                                <option value="LandingPage">LandingPage</option>
+                            </select>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* FAQ Card */}
+                <Card className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                            <HelpCircle size={18} className="text-primary-500" />
+                            <h3 className="font-bold dark:text-white">{t('faqs')}</h3>
+                        </div>
+                        <Button type="button" variant="ghost" size="sm" onClick={addFAQ}>
+                            <Plus size={16} />
+                        </Button>
+                    </div>
+                    <div className="space-y-3">
+                        {editForm.faqs?.map((faq, index) => (
+                            <div key={index} className="flex gap-2 items-start bg-gray-50 dark:bg-gray-900/50 p-3 rounded-xl">
+                                <div className="flex-1 grid grid-cols-1 gap-2">
                                     <input 
                                         type="text" 
                                         value={faq.question}
                                         onChange={e => handleFAQChange(index, 'question', e.target.value)}
                                         className={inputClass}
-                                        placeholder={t('example_question')}
+                                        placeholder={t('question')}
                                     />
-                                </div>
-                                <div>
-                                    <label className={labelClass}>{t('answer')}</label>
                                     <textarea 
                                         value={faq.answer}
                                         onChange={e => handleFAQChange(index, 'answer', e.target.value)}
-                                        className={`${inputClass} h-24 resize-none`}
-                                        placeholder={t('example_answer')}
+                                        className={`${inputClass} h-20 resize-none`}
+                                        placeholder={t('answer')}
                                     />
                                 </div>
+                                <button type="button" onClick={() => removeFAQ(index)} className="p-2 text-red-500 hover:bg-red-100 rounded-lg">
+                                    <X size={16} />
+                                </button>
                             </div>
-                        </Card>
-                    ))}
-                    
-                    {editForm.faqs && editForm.faqs.length > 0 && (
-                        <Button type="button" variant="secondary" onClick={addFAQ} className="w-full rounded-2xl border-dashed border-2 py-4 justify-center">
-                            <Plus size={20} className="mr-2" /> {t('add_faq')}
-                        </Button>
-                    )}
-                </div>
-            )}
-
-            {/* Sticky Mobile Action Bar */}
-            <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-12 md:bottom-12 flex justify-end z-30 pointer-events-none">
-                <Button 
-                    onClick={handleSave} 
-                    size="lg" 
-                    className="shadow-2xl shadow-primary-600/40 rounded-full px-8 pointer-events-auto transform hover:scale-105 transition-all"
-                >
-                    <Save size={20} className="mr-2" />
-                    {t('save')}
-                </Button>
+                        ))}
+                        {(!editForm.faqs || editForm.faqs.length === 0) && (
+                            <p className="text-center text-gray-400 text-sm py-4">{t('no_results')}</p>
+                        )}
+                    </div>
+                </Card>
             </div>
-        </form>
+
+            {/* Sidebar Column */}
+            <div className="lg:col-span-4 space-y-6">
+                <Card className="p-5 border-t-4 border-t-primary-500">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-bold dark:text-white text-lg">{t('status')}</h3>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${editForm.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                            {t(editForm.status || 'draft')}
+                        </span>
+                    </div>
+                    
+                    <div className="space-y-4 mb-6">
+                        <div>
+                            <label className={labelClass}>{t('status')}</label>
+                            <select 
+                                value={editForm.status}
+                                onChange={e => setEditForm({...editForm, status: e.target.value as any})}
+                                className={inputClass}
+                            >
+                                <option value="draft">{t('draft')}</option>
+                                <option value="published">{t('published')}</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className={labelClass}>{t('publish_date')}</label>
+                            <PersianDatePicker 
+                                value={editForm.publishDate}
+                                onChange={isoDate => setEditForm({...editForm, publishDate: isoDate})}
+                            />
+                        </div>
+                    </div>
+
+                    <Button type="submit" className="w-full justify-center py-3 rounded-xl shadow-lg shadow-primary-500/20">
+                        <Save size={18} className="mr-2" />
+                        {t('save')}
+                    </Button>
+                </Card>
+
+                <Card className="p-5">
+                    <h3 className="font-bold dark:text-white mb-4">{t('featured_image')}</h3>
+                    <div className="space-y-3">
+                        <div className="relative aspect-video bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-primary-500 transition-colors group cursor-pointer" onClick={() => setShowMediaModal(true)}>
+                            {editForm.featuredImage ? (
+                                <img src={editForm.featuredImage} alt="Featured" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                                    <ImageIcon size={32} />
+                                    <span className="text-xs mt-2">{t('select_media')}</span>
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span className="text-white font-bold text-sm">{t('edit')}</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <input 
+                                type="text" 
+                                value={editForm.featuredImage || ''}
+                                onChange={e => setEditForm({...editForm, featuredImage: e.target.value})}
+                                className={`${inputClass} text-xs`}
+                                placeholder="URL..."
+                            />
+                            {editForm.featuredImage && (
+                                <button type="button" onClick={() => setEditForm({...editForm, featuredImage: ''})} className="p-3 text-red-500 hover:bg-red-50 rounded-xl border border-red-100">
+                                    <Trash2 size={16} />
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </Card>
+            </div>
+        </div>
         
         {showMediaModal && (
             <MediaSelector 
@@ -411,7 +361,7 @@ export const ContentManager = () => {
               }}
             />
         )}
-      </div>
+      </form>
     );
   }
 
