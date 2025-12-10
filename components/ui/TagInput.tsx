@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 
@@ -49,19 +48,19 @@ export const TagInput: React.FC<TagInputProps> = ({ value = [], onChange, placeh
   };
 
   return (
-    <div className="w-full flex flex-wrap gap-2 p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus-within:ring-2 focus-within:ring-primary-500 transition-shadow min-h-[46px]">
+    <div className="w-full flex flex-wrap gap-2 px-5 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border-2 border-transparent focus-within:bg-white dark:focus-within:bg-gray-900 focus-within:border-primary-500/30 focus-within:ring-4 focus-within:ring-primary-500/10 transition-all duration-300 min-h-[56px] items-center">
       {value.map((tag, index) => (
         <span 
           key={index} 
-          className="flex items-center gap-1 bg-primary-50 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 px-2 py-1 rounded text-sm font-medium animate-fadeIn"
+          className="flex items-center gap-1.5 bg-white dark:bg-gray-800 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm border border-gray-100 dark:border-gray-700 animate-fadeIn"
         >
           {tag}
           <button 
             type="button" 
             onClick={() => removeTag(index)}
-            className="hover:text-red-500 transition-colors focus:outline-none"
+            className="text-gray-400 hover:text-red-500 transition-colors focus:outline-none bg-gray-100 dark:bg-gray-700 rounded-full p-0.5"
           >
-            <X size={14} />
+            <X size={12} />
           </button>
         </span>
       ))}
@@ -72,7 +71,7 @@ export const TagInput: React.FC<TagInputProps> = ({ value = [], onChange, placeh
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         placeholder={value.length === 0 ? placeholder : ''}
-        className="flex-1 bg-transparent min-w-[120px] outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 h-8 text-sm"
+        className="flex-1 bg-transparent min-w-[120px] outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 h-8 text-sm font-medium"
       />
     </div>
   );

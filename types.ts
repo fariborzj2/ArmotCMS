@@ -97,6 +97,8 @@ export interface BlogCategory {
   id: string;
   name: string;
   slug: string;
+  parentId?: string | null; // For Nested Categories
+  order?: number;           // For Drag & Drop Sorting
 }
 
 export interface Comment {
@@ -162,6 +164,7 @@ export interface SiteConfig {
   uiRadius?: 'sm' | 'md' | 'lg' | 'full';
   uiFont?: 'estedad' | 'vazir' | 'inter';
   uiDensity?: 'compact' | 'comfortable';
+  uiPrimaryColor?: 'blue' | 'indigo' | 'purple' | 'rose' | 'amber' | 'emerald' | 'sky';
 }
 
 export interface SmartAssistantConfig {

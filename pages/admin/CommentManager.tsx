@@ -1,10 +1,8 @@
-
-
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Trash2, MessageSquare, ExternalLink, Check, XCircle, Reply, ShieldAlert, Search as SearchIcon, Sparkles, Smile, Frown, Meh, Tag } from 'lucide-react';
+import { Trash2, MessageSquare, ExternalLink, Check, XCircle, Reply, ShieldAlert, Search as SearchIcon, Sparkles, Smile, Frown, Meh, Tag, User as UserIcon, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatDate } from '../../utils/date';
 import { Comment } from '../../types';
@@ -31,6 +29,9 @@ export const CommentManager = () => {
 
   const isSmartActive = plugins.some(p => p.id === 'smart-assistant' && p.active) && smartConfig.enableAutoReply;
   const isLimitReached = dailyUsage >= smartConfig.dailyReplyLimit;
+
+  // Modern Input Style matching other admin pages
+  const inputClass = "w-full px-5 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border-2 border-transparent hover:bg-white hover:border-gray-200 dark:hover:bg-gray-900 dark:hover:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/30 focus:ring-4 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all duration-300 text-sm font-medium";
 
   const getPageTitle = (pageId: string) => {
     const page = pages.find(p => p.id === pageId);
@@ -86,7 +87,6 @@ export const CommentManager = () => {
       setAiLoading(false);
   };
 
-  // Re-generate reply with new tone
   const handleToneChange = async (tone: 'formal'|'friendly'|'humorous') => {
       setSelectedTone(tone);
       if (isLimitReached) {
@@ -136,137 +136,124 @@ export const CommentManager = () => {
   const activeComment = comments.find(c => c.id === activeCommentId);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-24">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold dark:text-white">{t('comments_manager')}</h1>
+        <h1 className="text-3xl font-black dark:text-white">{t('comments_manager')}</h1>
       </div>
 
       <div className="flex flex-col md:flex-row justify-between gap-4">
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-800 space-x-4 space-x-reverse overflow-x-auto">
+        {/* Modern Segmented Tabs - Scrollable on mobile without scrollbar */}
+        <div 
+            className="p-1.5 bg-gray-100 dark:bg-gray-800 rounded-2xl flex overflow-x-auto w-full md:w-auto [&::-webkit-scrollbar]:hidden"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
             {['all', 'pending', 'approved', 'spam'].map((f) => (
                 <button
                     key={f}
                     onClick={() => { setFilter(f as any); setCurrentPage(1); }}
-                    className={`pb-3 px-4 font-medium transition-colors border-b-2 capitalize whitespace-nowrap ${
-                        filter === f ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500'
+                    className={`flex-1 md:flex-none px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 relative whitespace-nowrap ${
+                        filter === f 
+                        ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-md scale-100 ring-1 ring-black/5 dark:ring-white/5' 
+                        : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
                     }`}
                 >
-                    {t(f as any)}
-                    <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full text-gray-500">
-                        {comments.filter(c => f === 'all' ? true : c.status === f).length}
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                        {t(f as any)}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-md ${filter === f ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300' : 'bg-gray-200 dark:bg-gray-700 text-gray-500'}`}>
+                            {comments.filter(c => f === 'all' ? true : c.status === f).length}
+                        </span>
                     </span>
                 </button>
             ))}
         </div>
         
-        <div className="relative">
+        <div className="relative flex-1 md:max-w-xs">
             <input 
                 type="text" 
                 placeholder={t('search_placeholder_admin')}
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                className="pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 dark:text-white w-full md:w-64"
+                className={inputClass}
             />
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <div className="absolute top-1/2 left-4 rtl:left-auto rtl:right-4 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <SearchIcon size={20} />
+            </div>
         </div>
       </div>
 
-      <div className="md:bg-white md:dark:bg-gray-800 md:rounded-xl md:shadow-sm md:border md:border-gray-200 md:dark:border-gray-700 overflow-hidden">
-        <div className="">
-          <table className="w-full text-left rtl:text-right block md:table">
-            <thead className="hidden md:table-header-group bg-gray-50 dark:bg-gray-900/50 text-gray-500 uppercase text-xs">
-              <tr>
-                <th className="px-6 py-3">{t('author')}</th>
-                <th className="px-6 py-3">{t('message')}</th>
-                <th className="px-6 py-3">{t('status')}</th>
-                <th className="px-6 py-3">{t('on_page')}</th>
-                <th className="px-6 py-3 text-right rtl:text-left">{t('actions')}</th>
-              </tr>
-            </thead>
-            <tbody className="block md:table-row-group space-y-4 md:space-y-0 divide-y divide-gray-100 dark:divide-gray-800">
-              {paginatedComments.map((comment) => (
-                <tr key={comment.id} className="block md:table-row bg-white dark:bg-gray-800 md:bg-transparent rounded-xl shadow-sm md:shadow-none border border-gray-200 dark:border-gray-700 md:border-none p-4 md:p-0 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 font-medium dark:text-white flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
-                    <span className="md:hidden text-gray-500 text-xs font-bold">{t('author')}</span>
-                    <div className="flex flex-col">
-                        <span>{comment.author}</span>
-                        <span className="text-xs text-gray-400">{comment.email}</span>
-                        <span className="text-[10px] text-gray-400 mt-1">{formatDate(comment.date, lang)}</span>
+      <div className="grid grid-cols-1 gap-4">
+          {paginatedComments.map((comment) => (
+            <div key={comment.id} className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-transparent dark:border-gray-700/50 hover:shadow-md transition-all group">
+                <div className="flex flex-col md:flex-row gap-6">
+                    {/* Avatar & Info */}
+                    <div className="flex items-start gap-4 md:w-1/4 min-w-[200px]">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center shrink-0">
+                             {comment.avatar ? <img src={comment.avatar} alt="" className="w-full h-full object-cover rounded-2xl" /> : <UserIcon className="text-gray-400" />}
+                        </div>
+                        <div className="min-w-0">
+                            <h4 className="font-bold text-gray-900 dark:text-white truncate">{comment.author}</h4>
+                            <p className="text-xs text-gray-500 truncate">{comment.email}</p>
+                            <div className="flex items-center gap-1 mt-1 text-[10px] text-gray-400 bg-gray-50 dark:bg-gray-900 px-2 py-1 rounded-lg w-fit">
+                                <Clock size={10} />
+                                {formatDate(comment.date, lang)}
+                            </div>
+                        </div>
                     </div>
-                  </td>
-                  <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 text-gray-500 max-w-xs flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
-                    <span className="md:hidden text-gray-500 text-xs font-bold">{t('message')}</span>
-                    <div className="flex-1 text-right rtl:text-left md:text-left rtl:md:text-right overflow-hidden">
-                        <p className="truncate w-full max-w-[15rem] inline-block align-bottom" title={comment.content}>{comment.content}</p>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border
+                                ${comment.status === 'approved' ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-900/30' : 
+                                  comment.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-900/30' : 
+                                  'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30'}`}>
+                                {comment.status === 'approved' && <Check size={10} />}
+                                {comment.status === 'pending' && <Clock size={10} />}
+                                {comment.status === 'spam' && <ShieldAlert size={10} />}
+                                {t(comment.status)}
+                            </span>
+                            <Link to={`/${getPageSlug(comment.pageId)}`} target="_blank" className="text-xs text-primary-600 hover:underline flex items-center gap-1 bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded-lg">
+                                {t('on_page')}: {getPageTitle(comment.pageId)} <ExternalLink size={10} />
+                            </Link>
+                        </div>
+                        
+                        <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
+                            {comment.content}
+                        </p>
+
                         {comment.replies && comment.replies.length > 0 && (
-                            <div className="mt-1 text-xs text-blue-500 flex items-center gap-1">
-                                <Reply size={10} /> {comment.replies.length} {t('reply')}
+                            <div className="ml-4 rtl:ml-0 rtl:mr-4 pl-4 rtl:pl-0 rtl:pr-4 border-l-2 rtl:border-l-0 rtl:border-r-2 border-gray-200 dark:border-gray-700 space-y-2">
+                                {comment.replies.map(r => (
+                                    <div key={r.id} className="text-xs text-gray-500">
+                                        <span className="font-bold text-primary-600">@{r.author}:</span> {r.content}
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
-                  </td>
-                  <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
-                     <span className="md:hidden text-gray-500 text-xs font-bold">{t('status')}</span>
-                     <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                        ${comment.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 
-                          comment.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300' : 
-                          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'}`}>
-                        {comment.status === 'approved' && <Check size={10} />}
-                        {comment.status === 'pending' && <ClockIcon size={10} />}
-                        {comment.status === 'spam' && <ShieldAlert size={10} />}
-                        {t(comment.status)}
-                     </span>
-                  </td>
-                  <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 flex justify-between items-center md:block border-b border-gray-100 dark:border-gray-700 md:border-none">
-                    <span className="md:hidden text-gray-500 text-xs font-bold">{t('on_page')}</span>
-                    <Link to={`/${getPageSlug(comment.pageId)}`} target="_blank" className="flex items-center gap-1 text-primary-600 hover:underline text-sm">
-                      {getPageTitle(comment.pageId)}
-                      <ExternalLink size={12} />
-                    </Link>
-                  </td>
-                  <td className="block md:table-cell px-0 py-2 md:px-6 md:py-4 text-right rtl:text-left flex justify-between items-center md:block">
-                    <span className="md:hidden text-gray-500 text-xs font-bold">{t('actions')}</span>
-                    <div className="flex items-center justify-end gap-1">
+
+                    {/* Actions */}
+                    <div className="flex md:flex-col gap-2 md:w-32 shrink-0 border-t md:border-t-0 md:border-l rtl:md:border-l-0 rtl:md:border-r border-gray-100 dark:border-gray-800 pt-4 md:pt-0 md:pl-4 rtl:md:pl-0 rtl:md:pr-4 justify-center">
                         {comment.status !== 'approved' && (
-                            <button 
-                                onClick={() => handleStatusChange(comment, 'approved')} 
-                                className="p-1.5 text-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 rounded" 
-                                title={t('approve')}
-                            >
-                                <Check size={16} />
+                            <button onClick={() => handleStatusChange(comment, 'approved')} className="flex-1 md:flex-none py-2 px-3 bg-green-50 dark:bg-green-900/20 text-green-600 hover:bg-green-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                                <Check size={14} /> {t('approve')}
                             </button>
                         )}
                         {comment.status === 'approved' && (
-                            <button 
-                                onClick={() => handleStatusChange(comment, 'pending')} 
-                                className="p-1.5 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded" 
-                                title={t('unapprove')}
-                            >
-                                <XCircle size={16} />
+                            <button onClick={() => handleStatusChange(comment, 'pending')} className="flex-1 md:flex-none py-2 px-3 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 hover:bg-yellow-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                                <XCircle size={14} /> {t('unapprove')}
                             </button>
                         )}
-                        <button 
-                            onClick={() => openReplyModal(comment.id)} 
-                            className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded" 
-                            title={t('reply')}
-                        >
-                            <Reply size={16} />
+                        <button onClick={() => openReplyModal(comment.id)} className="flex-1 md:flex-none py-2 px-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                            <Reply size={14} /> {t('reply')}
                         </button>
-                        <button 
-                            onClick={() => handleDelete(comment.id)}
-                            className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
-                            title={t('delete')}
-                        >
-                            <Trash2 size={16} />
+                        <button onClick={() => handleDelete(comment.id)} className="flex-1 md:flex-none py-2 px-3 bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                            <Trash2 size={14} /> {t('delete')}
                         </button>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                </div>
+            </div>
+          ))}
       </div>
 
       <Pagination 
@@ -278,19 +265,21 @@ export const CommentManager = () => {
 
       {/* Reply Modal */}
       {replyModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-             <div className="bg-white dark:bg-gray-900 rounded-xl w-full max-w-lg shadow-2xl p-6">
-                 <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold dark:text-white">{t('reply')}</h3>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+             <div className="bg-white dark:bg-gray-900 rounded-[2rem] w-full max-w-lg shadow-2xl p-8 border border-white/20">
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-black dark:text-white flex items-center gap-2">
+                        <Reply size={24} className="text-primary-500" />
+                        {t('reply')}
+                    </h3>
                     {isSmartActive && activeComment && (
-                        <div className="flex items-center gap-2">
-                            {/* Tone Selectors */}
+                        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
                             {['formal', 'friendly', 'humorous'].map((tone) => (
                                 <button
                                     key={tone}
                                     onClick={() => handleToneChange(tone as any)}
                                     disabled={isLimitReached}
-                                    className={`text-xs px-2 py-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${selectedTone === tone ? 'bg-purple-100 text-purple-700 border border-purple-300' : 'bg-gray-100 text-gray-500'}`}
+                                    className={`text-[10px] px-2 py-1.5 rounded-lg transition-all font-bold ${selectedTone === tone ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
                                 >
                                     {t(`tone_${tone}`)}
                                 </button>
@@ -300,56 +289,48 @@ export const CommentManager = () => {
                  </div>
                  
                  {activeComment && (
-                    <div className="mb-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-100 dark:border-gray-700 max-h-40 overflow-y-auto">
-                        <div className="flex items-center justify-between mb-2">
+                    <div className="mb-6 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 max-h-40 overflow-y-auto">
+                        <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold">
+                                    {activeComment.author.charAt(0)}
+                                </div>
                                 <span className="font-bold text-sm dark:text-white">{activeComment.author}</span>
-                                <span className="text-xs text-gray-500">{formatDate(activeComment.date, lang)}</span>
                             </div>
                             
-                            {/* Analysis Badges */}
                             {analysisResult && (
                                 <div className="flex gap-2">
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 ${
+                                    <span className={`text-[10px] px-2 py-1 rounded-lg font-bold flex items-center gap-1 ${
                                         analysisResult.sentiment === 'positive' ? 'bg-green-100 text-green-700' :
                                         analysisResult.sentiment === 'negative' ? 'bg-red-100 text-red-700' : 'bg-gray-200 text-gray-600'
                                     }`}>
-                                        {analysisResult.sentiment === 'positive' ? <Smile size={10} /> : analysisResult.sentiment === 'negative' ? <Frown size={10} /> : <Meh size={10} />}
+                                        {analysisResult.sentiment === 'positive' ? <Smile size={12} /> : analysisResult.sentiment === 'negative' ? <Frown size={12} /> : <Meh size={12} />}
                                         {t(`sentiment_${analysisResult.sentiment}`)}
-                                    </span>
-                                    <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                        <Tag size={10} />
-                                        {t(`type_${analysisResult.type}`)}
                                     </span>
                                 </div>
                             )}
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">{activeComment.content}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed italic">"{activeComment.content}"</p>
                     </div>
                  )}
 
                  <div className="relative">
                     <textarea 
-                        className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 dark:text-white h-32 focus:ring-2 focus:ring-primary-500 outline-none"
+                        className={`${inputClass} h-32 resize-none`}
                         placeholder={t('reply')}
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                     />
                     {isSmartActive && aiLoading && (
-                        <div className="absolute bottom-3 left-3 rtl:left-auto rtl:right-3 flex items-center gap-2 text-purple-600 text-xs animate-pulse">
+                        <div className="absolute bottom-4 left-4 rtl:left-auto rtl:right-4 flex items-center gap-2 text-purple-600 text-xs font-bold animate-pulse bg-purple-50 px-2 py-1 rounded-lg">
                             <Sparkles size={12} /> {t('generating')}
                         </div>
                     )}
-                    {isLimitReached && isSmartActive && (
-                        <div className="absolute top-2 right-2 text-[10px] text-red-500 bg-red-50 px-2 py-1 rounded border border-red-100 flex items-center gap-1">
-                            <ShieldAlert size={10} />
-                            {t('daily_limit_reached')} ({smartConfig.dailyReplyLimit})
-                        </div>
-                    )}
                  </div>
-                 <div className="flex justify-end gap-2 mt-4">
-                     <Button variant="ghost" onClick={() => setReplyModalOpen(false)}>{t('cancel')}</Button>
-                     <Button onClick={submitReply}>{t('submit')}</Button>
+                 
+                 <div className="flex justify-end gap-3 mt-6">
+                     <Button variant="ghost" onClick={() => setReplyModalOpen(false)} className="rounded-xl">{t('cancel')}</Button>
+                     <Button onClick={submitReply} className="rounded-xl px-8 shadow-lg shadow-primary-500/30">{t('submit')}</Button>
                  </div>
              </div>
           </div>
@@ -357,7 +338,3 @@ export const CommentManager = () => {
     </div>
   );
 };
-
-const ClockIcon = ({ size }: { size: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-);

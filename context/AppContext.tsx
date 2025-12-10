@@ -28,7 +28,9 @@ interface AppContextType {
   deletePost: (id: string) => void;
   categories: BlogCategory[];
   addCategory: (category: BlogCategory) => void;
+  updateCategory: (category: BlogCategory) => void;
   deleteCategory: (id: string) => void;
+  reorderCategories: (categories: BlogCategory[]) => void;
   tags: BlogTag[];
   addTag: (tag: BlogTag) => void;
   deleteTag: (id: string) => void;
@@ -216,10 +218,27 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     setCategories((prev) => [...prev, category]);
     logActivity('create_category', `Created category: ${category.name}`);
   };
+  const updateCategory = (updatedCategory: BlogCategory) => {
+    setCategories((prev) => prev.map(c => c.id === updatedCategory.id ? updatedCategory : c));
+    logActivity('update_category', `Updated category: ${updatedCategory.name}`);
+  };
   const deleteCategory = (id: string) => {
     setCategories((prev) => prev.filter(c => c.id !== id));
     logActivity('delete_category', `Deleted category ID: ${id}`);
   };
+  const reorderCategories = (newCategories: BlogCategory[]) => {
+    // We only update the ones passed in to avoid overwriting unrelated state, but for simplicity here we replace
+    // In a real DB sync you'd batch update order
+    setCategories(prev => {
+        // Map over previous, if found in new, use new, else keep previous
+        // OR better: if newCategories contains ALL, just set it.
+        // Assuming newCategories is the full list or a significant subset that dictates order/parenting
+        const lookup = new Map(newCategories.map(c => [c.id, c]));
+        return prev.map(c => lookup.get(c.id) || c);
+    });
+    logActivity('reorder_categories', 'Categories reordered');
+  };
+
   const addTag = (tag: BlogTag) => {
     setTags((prev) => [...prev, tag]);
     logActivity('create_tag', `Created tag: ${tag.name}`);
@@ -351,7 +370,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     plugins, togglePlugin, installPlugin, deletePlugin,
     pages, addPage, updatePage, deletePage,
     posts, addPost, updatePost, deletePost,
-    categories, addCategory, deleteCategory,
+    categories, addCategory, updateCategory, deleteCategory, reorderCategories,
     tags, addTag, deleteTag,
     comments, addComment, deleteComment, updateComment, replyToComment,
     messages, addMessage, deleteMessage, markMessageRead,

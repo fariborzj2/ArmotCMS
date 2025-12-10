@@ -9,6 +9,7 @@ export const ThemeManager = () => {
   const [selectedRadius, setSelectedRadius] = useState(config.uiRadius || 'md');
   const [selectedFont, setSelectedFont] = useState(config.uiFont || 'estedad');
   const [layoutDensity, setLayoutDensity] = useState(config.uiDensity || 'comfortable');
+  const [selectedColor, setSelectedColor] = useState(config.uiPrimaryColor || 'sky');
 
   const themes: {id: LayoutTheme, name: string, color: string}[] = [
     { id: 'modern', name: 'Armot Modern', color: 'bg-indigo-500' },
@@ -20,7 +21,8 @@ export const ThemeManager = () => {
     updateConfig({
         uiRadius: selectedRadius as any,
         uiFont: selectedFont as any,
-        uiDensity: layoutDensity as any
+        uiDensity: layoutDensity as any,
+        uiPrimaryColor: selectedColor as any
     });
     alert(t('success'));
   };
@@ -145,6 +147,7 @@ export const ThemeManager = () => {
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{t('primary_color')}</label>
                 <div className="flex gap-3 flex-wrap">
                     {[
+                        { name: 'sky', class: 'bg-[#0ea5e9]' },
                         { name: 'blue', class: 'bg-blue-500' },
                         { name: 'indigo', class: 'bg-indigo-500' },
                         { name: 'purple', class: 'bg-purple-500' },
@@ -153,10 +156,13 @@ export const ThemeManager = () => {
                         { name: 'emerald', class: 'bg-emerald-500' },
                     ].map((c) => (
                         <button 
-                            key={c.name} 
-                            className={`${c.class} w-10 h-10 rounded-xl ring-2 ring-offset-2 ring-transparent hover:ring-gray-300 dark:ring-offset-gray-900 transition-all shadow-sm focus:outline-none focus:ring-primary-500`}
+                            key={c.name}
+                            onClick={() => setSelectedColor(c.name)}
+                            className={`${c.class} w-10 h-10 rounded-xl transition-all shadow-sm focus:outline-none flex items-center justify-center ${selectedColor === c.name ? 'ring-2 ring-offset-2 ring-primary-500 dark:ring-offset-gray-900 scale-110' : 'hover:scale-105'}`}
                             aria-label={c.name}
-                        ></button>
+                        >
+                            {selectedColor === c.name && <Check size={16} className="text-white drop-shadow-md" />}
+                        </button>
                     ))}
                 </div>
             </div>

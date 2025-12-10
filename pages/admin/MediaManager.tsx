@@ -1,5 +1,4 @@
 
-
 import React, { useRef, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
@@ -122,7 +121,7 @@ export const MediaManager = () => {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
                 <div className="text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-900 p-2 rounded flex items-center gap-1 w-full md:w-auto">
                     <Folder size={12} />
-                    {activeContext === 'all' ? t('root_folder') : `upload / images / ${activeContext}`}
+                    {activeContext === 'all' ? t('root_folder') : `${t('path_upload')} / ${t(`folder_${activeContext}`)}`}
                 </div>
                 <div className="relative w-full md:w-auto">
                     <input 
@@ -172,7 +171,7 @@ export const MediaManager = () => {
                     </div>
                     <p className="text-gray-500">{t('no_files')}</p>
                     <Button variant="ghost" onClick={triggerUpload} className="mt-4">
-                        {t('upload_to')} {activeContext === 'all' ? t('folder_general') : activeContext}
+                        {t('upload_to')} {activeContext === 'all' ? t('folder_general') : t(`folder_${activeContext}`)}
                     </Button>
                     </div>
                 )}

@@ -1,5 +1,3 @@
-
-
 import { SiteConfig, Plugin, User, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, ActivityLog, SmartAssistantConfig, CrawlerSource, BlogTag } from '../types';
 import { MOCK_PLUGINS, INITIAL_CONFIG, MOCK_PAGES, MOCK_COMMENTS, MOCK_MEDIA, MOCK_MENUS, MOCK_MESSAGES, MOCK_POSTS, MOCK_CATEGORIES, MOCK_TAGS, INITIAL_SMART_CONFIG } from '../constants';
 
@@ -19,6 +17,7 @@ const KEYS = {
   LOGS: 'armot_logs',
   SMART_CONFIG: 'armot_smart_config',
   CRAWLER_SOURCES: 'armot_crawler_sources',
+  AUTH_DB: 'armot_auth_db', // Simulating a users table
 };
 
 // In-Memory Fallback for restricted environments (e.g. sandboxed iframes)
@@ -225,6 +224,32 @@ export const storage = {
   reset: () => {
     safeStorage.clear();
     window.location.reload();
+  },
+
+  // --- Auth Simulation ---
+  registerUser: (user: User, pass: string) => {
+    const authDb = safeStorage.getItem(KEYS.AUTH_DB) ? JSON.parse(safeStorage.getItem(KEYS.AUTH_DB)!) : [];
+    // Remove existing user with same email if exists (update)
+    const filteredDb = authDb.filter((u: any) => u.email !== user.email);
+    filteredDb.push({ ...user, password: pass }); 
+    safeStorage.setItem(KEYS.AUTH_DB, JSON.stringify(filteredDb));
+  },
+
+  validateUser: (identifier: string, pass: string): User | null => {
+    const authDb = safeStorage.getItem(KEYS.AUTH_DB) ? JSON.parse(safeStorage.getItem(KEYS.AUTH_DB)!) : [];
+    
+    // Fallback for demo if no users exist but site is installed
+    if (authDb.length === 0 && identifier.toLowerCase() === 'admin' && pass === 'admin') {
+       return { username: 'Admin', email: 'admin@example.com', role: 'admin' };
+    }
+
+    const found = authDb.find((u: any) => (u.username.toLowerCase() === identifier.toLowerCase() || u.email.toLowerCase() === identifier.toLowerCase()) && u.password === pass);
+    
+    if (found) {
+        const { password, ...userWithoutPass } = found;
+        return userWithoutPass;
+    }
+    return null;
   },
 
   // Export all data for backup

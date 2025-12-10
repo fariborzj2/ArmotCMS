@@ -1,10 +1,8 @@
-
-
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Plus, Edit2, Trash2, Menu as MenuIcon, GripVertical, ArrowUp, ArrowDown, CornerDownRight } from 'lucide-react';
+import { Plus, Edit2, Trash2, Menu as MenuIcon, GripVertical, CornerDownRight } from 'lucide-react';
 import { MenuItem } from '../../types';
 import { DynamicIcon } from '../../components/ui/DynamicIcon';
 
@@ -12,6 +10,7 @@ export const MenuManager = () => {
   const { t, menus, addMenuItem, updateMenuItem, deleteMenuItem, reorderMenus } = useApp();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<MenuItem>>({});
+  const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
 
   // Helper to sort menu items
   const sortMenus = (items: MenuItem[]) => items.sort((a, b) => a.order - b.order);
@@ -63,6 +62,45 @@ export const MenuManager = () => {
     }
   };
 
+  // --- Drag and Drop Handlers ---
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+      setDraggedItemId(id);
+      e.dataTransfer.effectAllowed = 'move';
+      // Set a transparent drag image if needed, or rely on default
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault(); // Necessary to allow dropping
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string, parentId: string | undefined, location: 'header' | 'footer') => {
+      e.preventDefault();
+      if (!draggedItemId || draggedItemId === targetId) return;
+
+      // Filter siblings (same parent, same location)
+      const siblings = menus
+        .filter(m => m.location === location && (m.parentId || undefined) === (parentId || undefined))
+        .sort((a, b) => a.order - b.order);
+
+      const fromIndex = siblings.findIndex(m => m.id === draggedItemId);
+      const toIndex = siblings.findIndex(m => m.id === targetId);
+
+      if (fromIndex === -1 || toIndex === -1) return;
+
+      const updatedSiblings = [...siblings];
+      const [movedItem] = updatedSiblings.splice(fromIndex, 1);
+      updatedSiblings.splice(toIndex, 0, movedItem);
+
+      // Create update payload
+      const batchUpdate = updatedSiblings.map((item, idx) => ({
+          ...item,
+          order: idx + 1
+      }));
+
+      reorderMenus(batchUpdate);
+      setDraggedItemId(null);
+  };
+
   const MenuItemRow: React.FC<{ item: MenuItem, depth?: number, items: MenuItem[], location: 'header' | 'footer' }> = ({ item, depth = 0, items, location }) => {
       // Find children
       const children = items.filter(child => child.parentId === item.id);
@@ -70,10 +108,18 @@ export const MenuManager = () => {
       return (
           <>
             <div 
-                className={`flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800 transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-700`}
+                className={`flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-100 dark:border-gray-800 transition-all duration-200 hover:border-primary-300 dark:hover:border-primary-700 ${draggedItemId === item.id ? 'opacity-50 border-dashed border-2' : ''}`}
                 style={{ marginRight: depth * 24 + 'px' }} // RTL indent
+                draggable
+                onDragStart={(e) => handleDragStart(e, item.id)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, item.id, item.parentId, location)}
             >
                  <div className="flex items-center gap-3 w-full overflow-hidden">
+                   <div className="cursor-move text-gray-300 hover:text-gray-500 p-1">
+                        <GripVertical size={16} />
+                   </div>
+
                    {/* Visual Hierarchy Indicator */}
                    {depth > 0 && <CornerDownRight size={16} className="text-gray-400" />}
 

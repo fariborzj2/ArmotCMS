@@ -53,24 +53,40 @@ const AppRoutes = () => {
     const selectedFont = fontMap[config.uiFont || 'estedad'] || 'Estedad';
     root.style.setProperty('--font-primary', selectedFont);
 
-    // 2. Border Radius
-    // Mapping config values to CSS variable values
+    // 2. Border Radius (Controlled via single base variable in index.html config)
     const radiusSettings = {
-        'sm': { sm: '0.125rem', md: '0.25rem', lg: '0.375rem' },
-        'md': { sm: '0.125rem', md: '0.375rem', lg: '0.5rem' }, // Default
-        'lg': { sm: '0.25rem', md: '0.5rem', lg: '0.75rem' },
-        'full': { sm: '0.5rem', md: '1rem', lg: '1.5rem' }
+        'sm': '0.5rem',   // 8px (Small/Sharp)
+        'md': '1rem',     // 16px (Medium/Standard)
+        'lg': '1.5rem',   // 24px (Large/Round)
+        'full': '2rem'    // 32px (Very Round)
     };
     const currentRadius = radiusSettings[config.uiRadius || 'md'];
-    root.style.setProperty('--radius-sm', currentRadius.sm);
-    root.style.setProperty('--radius-md', currentRadius.md);
-    root.style.setProperty('--radius-lg', currentRadius.lg);
+    root.style.setProperty('--radius-base', currentRadius);
 
     // 3. Density (Experimental scaling)
     if (config.uiDensity === 'compact') {
         root.style.fontSize = '14px'; // Slightly smaller base
     } else {
         root.style.fontSize = '16px'; // Default
+    }
+
+    // 4. Primary Color
+    const colorPalettes: Record<string, any> = {
+      sky: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
+      blue: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },
+      indigo: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' },
+      purple: { 50: '#faf5ff', 100: '#f3e8ff', 500: '#a855f7', 600: '#9333ea', 700: '#7e22ce' },
+      rose: { 50: '#fff1f2', 100: '#ffe4e6', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c' },
+      amber: { 50: '#fffbeb', 100: '#fef3c7', 500: '#f59e0b', 600: '#d97706', 700: '#b45309' },
+      emerald: { 50: '#ecfdf5', 100: '#d1fae5', 500: '#10b981', 600: '#059669', 700: '#047857' },
+    };
+    const activeColor = colorPalettes[config.uiPrimaryColor || 'sky'];
+    if (activeColor) {
+        root.style.setProperty('--color-primary-50', activeColor[50]);
+        root.style.setProperty('--color-primary-100', activeColor[100]);
+        root.style.setProperty('--color-primary-500', activeColor[500]);
+        root.style.setProperty('--color-primary-600', activeColor[600]);
+        root.style.setProperty('--color-primary-700', activeColor[700]);
     }
 
   }, [config]);

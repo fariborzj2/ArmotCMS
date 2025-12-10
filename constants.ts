@@ -1,11 +1,12 @@
-
-
 import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag } from './types';
 
 export const TRANSLATIONS: Translation = {
   // General
   welcome: { fa: 'خوش آمدید', en: 'Welcome' },
   dashboard: { fa: 'داشبورد', en: 'Dashboard' },
+  dashboard_subtitle: { fa: 'در اینجا نگاهی به وضعیت امروز سایت شما داریم.', en: "Here's what's happening with your site today." },
+  last_7_days: { fa: '۷ روز گذشته', en: 'Last 7 Days' },
+  view_all_comments: { fa: 'مشاهده همه نظرات', en: 'View All Comments' },
   install: { fa: 'نصب', en: 'Install' },
   settings: { fa: 'تنظیمات', en: 'Settings' },
   logout: { fa: 'خروج', en: 'Logout' },
@@ -45,16 +46,23 @@ export const TRANSLATIONS: Translation = {
   plugin_uploaded: { fa: 'افزونه با موفقیت بارگذاری شد', en: 'Plugin uploaded successfully' },
   
   // Navigation Categories
+  nav_main: { fa: 'اصلی', en: 'Main' },
   nav_content: { fa: 'مدیریت محتوا', en: 'Content' },
   nav_engagement: { fa: 'تعاملات', en: 'Engagement' },
   nav_design: { fa: 'ظاهر و قالب', en: 'Appearance' },
   nav_system: { fa: 'سیستم', en: 'System' },
 
-  // User Fields
+  // User Fields & Roles
   full_name: { fa: 'نام کامل', en: 'Full Name' },
   mobile: { fa: 'شماره موبایل', en: 'Mobile Number' },
   bio: { fa: 'بیوگرافی (معرفی)', en: 'Bio' },
   avatar: { fa: 'تصویر پروفایل', en: 'Profile Image' },
+  role_user_desc: { fa: 'کاربر (عادی)', en: 'User (Normal)' },
+  role_editor_desc: { fa: 'نویسنده (مدیریت محتوا)', en: 'Editor (Can manage content)' },
+  role_admin_desc: { fa: 'مدیر کل (دسترسی کامل)', en: 'Admin (Full Access)' },
+  admin: { fa: 'مدیر کل', en: 'Admin' },
+  editor: { fa: 'نویسنده', en: 'Editor' },
+  user: { fa: 'کاربر', en: 'User' },
   
   // Blog
   blog: { fa: 'وبلاگ', en: 'Blog' },
@@ -68,6 +76,7 @@ export const TRANSLATIONS: Translation = {
   add_post: { fa: 'افزودن نوشته', en: 'Add Post' },
   add_category: { fa: 'افزودن دسته‌بندی', en: 'Add Category' },
   category: { fa: 'دسته‌بندی', en: 'Category' },
+  parent_category: { fa: 'دسته مادر (والد)', en: 'Parent Category' },
   read_more: { fa: 'ادامه مطلب', en: 'Read More' },
   by: { fa: 'توسط', en: 'By' },
   related_posts: { fa: 'مطالب مرتبط', en: 'Related Posts' },
@@ -77,6 +86,7 @@ export const TRANSLATIONS: Translation = {
   views: { fa: 'بازدید', en: 'Views' },
   comments_count: { fa: 'نظرات', en: 'Comments' },
   sort_by: { fa: 'مرتب‌سازی', en: 'Sort by' },
+  uncategorized: { fa: 'دسته‌بندی نشده', en: 'Uncategorized' },
   
   // Blog Settings & FAQs
   post_settings: { fa: 'تنظیمات مطلب', en: 'Post Settings' },
@@ -92,6 +102,16 @@ export const TRANSLATIONS: Translation = {
   keywords_hint: { fa: 'با اینتر یا کاما جدا کنید', en: 'Separate with Enter or comma' },
   persian_date: { fa: 'تاریخ شمسی', en: 'Persian Date' },
   serp_preview: { fa: 'پیش‌نمایش در گوگل', en: 'Search Engine Preview' },
+  meta_desc_placeholder: { fa: 'توضیحات متا در اینجا نمایش داده می‌شود...', en: 'Meta description will appear here...' },
+  schema_article: { fa: 'مقاله (استاندارد)', en: 'Article (Standard)' },
+  schema_news: { fa: 'مقاله خبری', en: 'News Article (For News)' },
+  schema_blogposting: { fa: 'پست وبلاگ (شخصی)', en: 'Blog Posting (Personal)' },
+
+  // Content placeholders
+  example_title: { fa: 'مثال: درباره ما', en: 'e.g. About Us' },
+  example_slug: { fa: 'مثال: about-us', en: 'e.g. about-us' },
+  example_question: { fa: 'مثال: آیا این محصول گارانتی دارد؟', en: 'e.g. Is this compatible?' },
+  example_answer: { fa: 'بله، کاملا...', en: 'Yes, it is...' },
 
   // Profile
   profile: { fa: 'پروفایل من', en: 'My Profile' },
@@ -154,6 +174,8 @@ export const TRANSLATIONS: Translation = {
   db_name: { fa: 'نام دیتابیس', en: 'DB Name' },
   db_user: { fa: 'نام کاربری دیتابیس', en: 'DB User' },
   db_pass: { fa: 'رمز عبور دیتابیس', en: 'DB Password' },
+  fill_all_fields: { fa: 'لطفا تمام فیلدها را پر کنید.', en: 'Please fill all fields.' },
+  ready_message: { fa: 'آرموت سی‌ام‌اس آماده استفاده است.', en: 'ArmotCms is ready to rock.' },
   
   // Dashboard & Tools
   total_visits: { fa: 'بازدید کل', en: 'Total Visits' },
@@ -163,6 +185,7 @@ export const TRANSLATIONS: Translation = {
   total_files: { fa: 'تعداد فایل‌ها', en: 'Total Files' },
   active_plugins: { fa: 'افزونه‌های فعال', en: 'Active Plugins' },
   activity_log: { fa: 'گزارش فعالیت‌ها', en: 'Activity Log' },
+  no_activity: { fa: 'فعالیتی ثبت نشده است.', en: 'No recent activity.' },
   tools: { fa: 'ابزارها', en: 'Tools' },
   system_tools: { fa: 'ابزارهای سیستم', en: 'System Tools' },
   backup_restore: { fa: 'پشتیبان‌گیری و بازیابی', en: 'Backup & Restore' },
@@ -223,12 +246,19 @@ export const TRANSLATIONS: Translation = {
   enable_sitemap: { fa: 'فعال‌سازی نقشه سایت', en: 'Enable Sitemap' },
   hint_enable_sitemap: { fa: 'تولید خودکار فایل sitemap.xml برای موتورهای جستجو.', en: 'Automatically generate sitemap.xml for search engines.' },
   view_sitemap: { fa: 'مشاهده نقشه سایت', en: 'View Sitemap' },
+  hide: { fa: 'مخفی کردن', en: 'Hide' },
 
   cache_settings: { fa: 'تنظیمات کش', en: 'Cache Settings' },
   cache_driver: { fa: 'درایور کش', en: 'Cache Driver' },
   hint_cache_driver: { fa: 'روش ذخیره‌سازی کش برای افزایش سرعت بارگذاری.', en: 'Storage method for caching to improve load times.' },
   clear_cache: { fa: 'پاکسازی کش', en: 'Clear Cache' },
   hint_clear_cache: { fa: 'حذف تمام فایل‌های کش شده سیستم.', en: 'Remove all system cached files.' },
+  system_status: { fa: 'وضعیت سیستم', en: 'System Status' },
+  driver: { fa: 'درایور', en: 'Driver' },
+  driver_memory: { fa: 'حافظه رم (RAM - ایمن)', en: 'Memory (RAM - Safe)' },
+  driver_file: { fa: 'فایل سیستم (LocalStorage)', en: 'File System (LocalStorage)' },
+  driver_redis: { fa: 'ردیس (Redis - سرعت بالا)', en: 'Redis (High Performance)' },
+  driver_memcached: { fa: 'ممکش (Memcached)', en: 'Memcached' },
 
   // Menu Manager
   menu_manager: { fa: 'مدیریت منوها', en: 'Menu Manager' },
@@ -302,6 +332,7 @@ export const TRANSLATIONS: Translation = {
   type_question: { fa: 'سوال', en: 'Question' },
   type_critique: { fa: 'انتقاد', en: 'Critique' },
   type_suggestion: { fa: 'پیشنهاد', en: 'Suggestion' },
+  type_general: { fa: 'عمومی', en: 'General' },
   highlights: { fa: 'نکات کلیدی', en: 'Key Highlights' },
   daily_limit_reached: { fa: 'سقف روزانه استفاده از هوش مصنوعی پر شده است.', en: 'Daily AI limit reached.' },
   config_title: { fa: 'پیکربندی', en: 'Configuration' },
@@ -327,6 +358,7 @@ export const TRANSLATIONS: Translation = {
   root_folder: { fa: 'ریشه', en: 'root' },
   no_files: { fa: 'فایلی یافت نشد.', en: 'No files found.' },
   upload_to: { fa: 'آپلود در', en: 'Upload to' },
+  path_upload: { fa: 'آپلود / تصاویر', en: 'upload / images' },
 
   // Public Pages
   about_us: { fa: 'درباره ما', en: 'About Us' },
@@ -361,6 +393,12 @@ export const TRANSLATIONS: Translation = {
   seo_title: { fa: 'عنوان سئو', en: 'SEO Title' },
   seo_desc: { fa: 'توضیحات متا', en: 'Meta Description' },
   
+  // Login
+  remember_me: { fa: 'مرا به خاطر بسپار', en: 'Remember me' },
+  forgot_password: { fa: 'رمز عبور را فراموش کرده‌اید؟', en: 'Forgot password?' },
+  login_to: { fa: 'ورود به', en: 'Login to' },
+  invalid_credentials: { fa: 'نام کاربری یا رمز عبور اشتباه است', en: 'Invalid username or password' },
+
   // Table & Pagination
   prev: { fa: 'قبلی', en: 'Prev' },
   next: { fa: 'بعدی', en: 'Next' },
@@ -465,9 +503,10 @@ export const MOCK_PAGES: Page[] = [
 ];
 
 export const MOCK_CATEGORIES: BlogCategory[] = [
-  { id: 'cat1', name: 'تکنولوژی', slug: 'tech' },
-  { id: 'cat2', name: 'سبک زندگی', slug: 'lifestyle' },
-  { id: 'cat3', name: 'عکاسی', slug: 'photography' },
+  { id: 'cat1', name: 'تکنولوژی', slug: 'tech', order: 1, parentId: null },
+  { id: 'cat2', name: 'سبک زندگی', slug: 'lifestyle', order: 2, parentId: null },
+  { id: 'cat3', name: 'عکاسی', slug: 'photography', order: 3, parentId: null },
+  { id: 'cat4', name: 'هوش مصنوعی', slug: 'ai', order: 1, parentId: 'cat1' },
 ];
 
 export const MOCK_TAGS: BlogTag[] = [

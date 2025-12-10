@@ -17,6 +17,11 @@ export const Installer = () => {
   const [adminConfig, setAdminConfig] = useState({ username: 'admin', email: 'admin@example.com', password: '' });
 
   const nextStep = async () => {
+    if (step === 2 && (!adminConfig.username || !adminConfig.password || !adminConfig.email)) {
+        alert(t('error') + ': Please fill all fields.');
+        return;
+    }
+
     setIsLoading(true);
     // Simulate connection/processing delay
     setTimeout(() => {
@@ -37,11 +42,14 @@ export const Installer = () => {
         dbName: dbConfig.name 
       });
       
-      // 2. Create User
+      // 2. Create User & Register in Auth DB
       const newUser = { username: adminConfig.username, email: adminConfig.email, role: 'admin' as const };
+      storage.registerUser(newUser, adminConfig.password);
+      
+      // 3. Login
       loginUser(newUser);
 
-      // 3. Redirect
+      // 4. Redirect
       navigate('/admin');
       setIsLoading(false);
     }, 2000);
