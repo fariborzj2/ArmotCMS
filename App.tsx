@@ -19,8 +19,11 @@ import { Settings } from './pages/admin/Settings';
 import { ActivityLogs } from './pages/admin/ActivityLogs';
 import { Tools } from './pages/admin/Tools';
 import { SmartAssistant } from './pages/admin/plugins/SmartAssistant';
-import { ProductManager } from './pages/admin/store/ProductManager'; // New
-import { StoreSettings } from './pages/admin/store/StoreSettings'; // New
+import { ProductManager } from './pages/admin/store/ProductManager';
+import { StoreSettings } from './pages/admin/store/StoreSettings';
+import { ShopHome } from './pages/public/store/ShopHome'; // New
+import { ShopCategory } from './pages/public/store/ShopCategory'; // New
+import { ShopProduct } from './pages/public/store/ShopProduct'; // New
 import { Home } from './pages/public/Home';
 import { About } from './pages/public/About';
 import { Contact } from './pages/public/Contact';
@@ -147,6 +150,15 @@ const AppRoutes = () => {
              <Route path="search" element={<BlogSearch />} /> {/* Fallback standard */}
              <Route path=":category/:idSlug" element={<BlogSingle />} />
              <Route path=":slug" element={<BlogResolver />} />
+          </Route>
+        )}
+
+        {/* Store Routes (Plugin Based) */}
+        {isStoreActive && (
+          <Route path="/shop">
+             <Route index element={<ShopHome />} />
+             <Route path="category/:slug" element={<ShopCategory />} />
+             <Route path="product/:slug" element={<ShopProduct />} />
           </Route>
         )}
 

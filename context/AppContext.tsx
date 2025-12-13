@@ -1,8 +1,8 @@
 
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, ActivityLog, SmartAssistantConfig, CrawlerSource, StoreProduct, StoreConfig, StoreOrder } from '../types';
-import { TRANSLATIONS, INITIAL_STORE_CONFIG, MOCK_PRODUCTS } from '../constants';
+import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, ActivityLog, SmartAssistantConfig, CrawlerSource, StoreProduct, StoreConfig, StoreOrder, StoreCategory } from '../types';
+import { TRANSLATIONS, INITIAL_STORE_CONFIG, MOCK_PRODUCTS, MOCK_STORE_CATEGORIES } from '../constants';
 import { storage } from '../utils/storage';
 import { cache } from '../utils/cache';
 
@@ -73,6 +73,7 @@ interface AppContextType {
   deleteStoreProduct: (id: string) => void;
   storeConfig: StoreConfig;
   updateStoreConfig: (updates: Partial<StoreConfig>) => void;
+  storeCategories: StoreCategory[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -105,6 +106,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   // Store State (Mock persistence handled here for simplicity, ideally separate context)
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(MOCK_PRODUCTS);
   const [storeConfig, setStoreConfig] = useState<StoreConfig>(INITIAL_STORE_CONFIG);
+  const [storeCategories] = useState<StoreCategory[]>(MOCK_STORE_CATEGORIES); // Just mock read-only for now
 
   // Initialize Cache Driver
   useEffect(() => {
@@ -408,7 +410,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     crawlerSources, addCrawlerSource, deleteCrawlerSource,
     // Store
     storeProducts, addStoreProduct, updateStoreProduct, deleteStoreProduct,
-    storeConfig, updateStoreConfig
+    storeConfig, updateStoreConfig, storeCategories
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

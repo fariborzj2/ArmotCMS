@@ -8,7 +8,7 @@ interface SeoProps {
   title: string;
   description?: string;
   image?: string;
-  type?: 'website' | 'article' | 'profile';
+  type?: 'website' | 'article' | 'profile' | 'product';
   schema?: any;
 }
 

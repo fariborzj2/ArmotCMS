@@ -1,4 +1,4 @@
-import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, StoreProduct, StoreConfig } from './types';
+import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, StoreProduct, StoreConfig, StoreCategory } from './types';
 
 export const TRANSLATIONS: Translation = {
   // General
@@ -439,7 +439,15 @@ export const TRANSLATIONS: Translation = {
   unavailable: { fa: 'ناموجود', en: 'Unavailable' },
   update_rate: { fa: 'بروزرسانی نرخ', en: 'Update Rate' },
   toman: { fa: 'تومان', en: 'Toman' },
-  usd: { fa: 'دلار', en: 'USD' }
+  usd: { fa: 'دلار', en: 'USD' },
+  featured_products: { fa: 'محصولات ویژه', en: 'Featured Products' },
+  shop_by_category: { fa: 'خرید بر اساس دسته‌بندی', en: 'Shop by Category' },
+  add_to_cart: { fa: 'افزودن به سبد', en: 'Add to Cart' },
+  buy_now: { fa: 'خرید سریع', en: 'Buy Now' },
+  details: { fa: 'مشخصات', en: 'Details' },
+  related_products: { fa: 'محصولات مرتبط', en: 'Related Products' },
+  out_of_stock: { fa: 'ناموجود', en: 'Out of Stock' },
+  visit_store: { fa: 'ورود به فروشگاه', en: 'Visit Store' }
 };
 
 export const MOCK_PLUGINS: Plugin[] = [
@@ -712,6 +720,13 @@ export const INITIAL_SMART_CONFIG = {
 };
 
 // --- STORE MOCKS ---
+export const MOCK_STORE_CATEGORIES: StoreCategory[] = [
+    { id: 'sc1', name: 'قالب سایت', slug: 'templates', image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=500&q=80', order: 1 },
+    { id: 'sc2', name: 'افزونه وردپرس', slug: 'plugins', image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&q=80', order: 2 },
+    { id: 'sc3', name: 'سرور مجازی', slug: 'vps', image: 'https://images.unsplash.com/photo-1558494949-ef526b0042a0?w=500&q=80', order: 3 },
+    { id: 'sc4', name: 'خدمات سئو', slug: 'seo-services', image: 'https://images.unsplash.com/photo-1572044162444-ad6021194360?w=500&q=80', order: 4 },
+];
+
 export const MOCK_PRODUCTS: StoreProduct[] = [
   {
     id: 'p1',
@@ -719,6 +734,7 @@ export const MOCK_PRODUCTS: StoreProduct[] = [
     slug: 'armot-theme',
     sku: 'THEME-001',
     type: 'digital',
+    categoryId: 'sc1',
     priceModel: 'fixed',
     basePrice: 450000,
     stock: 999,
@@ -735,6 +751,7 @@ export const MOCK_PRODUCTS: StoreProduct[] = [
     slug: 'vps-monthly',
     sku: 'VPS-US-01',
     type: 'service',
+    categoryId: 'sc3',
     priceModel: 'dollar_based',
     basePrice: 5, // $5
     stock: 50,

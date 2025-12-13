@@ -221,12 +221,22 @@ export interface Translation {
 export type ProductType = 'physical' | 'digital' | 'service';
 export type PricingModel = 'fixed' | 'dollar_based';
 
+export interface StoreCategory {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+  parentId?: string;
+  order?: number;
+}
+
 export interface StoreProduct {
   id: string;
   title: string;
   slug: string;
   sku: string;
   type: ProductType;
+  categoryId?: string; // Link to StoreCategory
   
   // Pricing
   priceModel: PricingModel;
