@@ -21,9 +21,10 @@ import { Tools } from './pages/admin/Tools';
 import { SmartAssistant } from './pages/admin/plugins/SmartAssistant';
 import { ProductManager } from './pages/admin/store/ProductManager';
 import { StoreSettings } from './pages/admin/store/StoreSettings';
-import { ShopHome } from './pages/public/store/ShopHome'; // New
-import { ShopCategory } from './pages/public/store/ShopCategory'; // New
-import { ShopProduct } from './pages/public/store/ShopProduct'; // New
+import { OrderManager } from './pages/admin/store/OrderManager'; // New
+import { ShopHome } from './pages/public/store/ShopHome';
+import { ShopCategory } from './pages/public/store/ShopCategory';
+import { ShopProduct } from './pages/public/store/ShopProduct';
 import { Home } from './pages/public/Home';
 import { About } from './pages/public/About';
 import { Contact } from './pages/public/Contact';
@@ -185,6 +186,7 @@ const AppRoutes = () => {
              <Route path="media" element={<MediaManager />} />
              {isSmartActive && <Route path="smart-assistant" element={<SmartAssistant />} />}
              {isStoreActive && <Route path="store/products" element={<ProductManager />} />}
+             {isStoreActive && <Route path="store/orders" element={<OrderManager />} />}
          </Route>
 
          {/* Admin Only Access */}

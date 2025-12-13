@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Globe, Sun, Moon, Menu, X, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Globe, Sun, Moon, Menu, X, Search, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react';
 import { MenuItem } from '../../types';
 import { DynamicIcon } from '../ui/DynamicIcon';
+import { CartDrawer } from '../store/CartDrawer';
 
 // Define recursive type for menu items with children
 interface MenuItemWithChildren extends MenuItem {
@@ -13,12 +14,15 @@ interface MenuItemWithChildren extends MenuItem {
 }
 
 export const PublicLayout = () => {
-  const { t, lang, setLang, themeMode, toggleThemeMode, config, plugins, menus } = useApp();
+  const { t, lang, setLang, themeMode, toggleThemeMode, config, plugins, menus, cart } = useApp();
   const [isOpen, setIsOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null); // For Mobile Accordion
   const location = useLocation();
   const navigate = useNavigate();
+
+  const isStoreActive = plugins.some(p => p.id === 'armot-store' && p.active);
 
   // Helper: Build Tree Structure
   const buildMenuTree = (items: MenuItem[]): MenuItemWithChildren[] => {
@@ -47,7 +51,7 @@ export const PublicLayout = () => {
   };
 
   const headerMenus = buildMenuTree(menus.filter(m => m.location === 'header'));
-  const footerMenus = buildMenuTree(menus.filter(m => m.location === 'footer')); // Footer usually flat, but handled anyway
+  const footerMenus = buildMenuTree(menus.filter(m => m.location === 'footer'));
 
   // Plugin System: Analytics Hook
   const hasAnalyticsPlugin = plugins.find(p => p.id === 'analytics-lite' && p.active);
@@ -144,14 +148,11 @@ export const PublicLayout = () => {
   };
 
   const renderNavigation = () => {
-    // We'll stick to 'modern' structure for simplicity in this XML response, 
-    // but applying the logic to the default 'modern' case which is most robust.
     return (
         <nav className="border-b border-gray-100 dark:border-gray-800 sticky top-0 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md z-50 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
             
-            {/* Left Side (LTR) / Right Side (RTL) */}
             <div className="flex items-center gap-4">
                 
                 <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
@@ -165,9 +166,7 @@ export const PublicLayout = () => {
                 </div>
             </div>
             
-            {/* Right Side (LTR) / Left Side (RTL) */}
             <div className="flex items-center gap-2">
-                {/* Search Bar */}
                 <form onSubmit={handleSearch} className="hidden lg:block relative mx-2">
                     <input 
                     type="text" 
@@ -180,6 +179,20 @@ export const PublicLayout = () => {
                     <Search size={16} />
                     </button>
                 </form>
+
+                {isStoreActive && (
+                    <button 
+                        onClick={() => setCartOpen(true)}
+                        className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full relative transition-colors"
+                    >
+                        <ShoppingBag size={20} />
+                        {cart.length > 0 && (
+                            <span className="absolute top-0 right-0 rtl:right-auto rtl:left-0 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] flex items-center justify-center">
+                                {cart.length}
+                            </span>
+                        )}
+                    </button>
+                )}
 
                 <Link to="/login" className="hidden md:block text-gray-700 dark:text-gray-300 hover:text-primary-600 px-3 py-2 rounded-md font-medium transition-colors text-sm">{t('login')}</Link>
 
@@ -212,6 +225,9 @@ export const PublicLayout = () => {
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300 flex flex-col">
       {renderNavigation()}
       
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+
       {/* Mobile Menu */}
       {isOpen && (
           <div className="md:hidden border-t border-gray-100 dark:border-gray-800 p-4 space-y-2 bg-white dark:bg-gray-950 fixed w-full z-40 top-16 shadow-lg h-[calc(100vh-64px)] overflow-y-auto">

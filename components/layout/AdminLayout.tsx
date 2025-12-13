@@ -76,6 +76,7 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
         label: 'nav_store',
         items: [
             { icon: ShoppingBag, label: 'products', path: '/admin/store/products', roles: ['admin', 'editor'] },
+            { icon: ShoppingCart, label: 'orders', path: '/admin/store/orders', roles: ['admin', 'editor'] },
             { icon: Settings, label: 'store_settings', path: '/admin/store/settings', roles: ['admin'] },
         ]
     }] : []),

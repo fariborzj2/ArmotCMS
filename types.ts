@@ -279,3 +279,8 @@ export interface StoreOrder {
   date: string;
   items: Array<{ productId: string; quantity: number; priceAtPurchase: number }>;
 }
+
+export interface CartItem {
+  productId: string;
+  quantity: number;
+}

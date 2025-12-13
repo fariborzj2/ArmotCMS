@@ -9,7 +9,7 @@ import { ShoppingCart, Check, XCircle, Share2, ShieldCheck, Truck } from 'lucide
 
 export const ShopProduct = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { t, storeProducts, storeConfig, config } = useApp();
+  const { t, storeProducts, storeConfig, config, addToCart } = useApp();
 
   const product = storeProducts.find(p => p.slug === slug);
 
@@ -32,7 +32,8 @@ export const ShopProduct = () => {
   const finalPrice = storeUtils.calculatePrice(product, storeConfig);
 
   const handleAddToCart = () => {
-      alert("Added to Cart (Mock Implementation)");
+      addToCart(product);
+      alert(t('success')); // Optional feedback
   };
 
   return (

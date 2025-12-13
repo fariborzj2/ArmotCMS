@@ -1,8 +1,8 @@
 
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, ActivityLog, SmartAssistantConfig, CrawlerSource, StoreProduct, StoreConfig, StoreOrder, StoreCategory } from '../types';
-import { TRANSLATIONS, INITIAL_STORE_CONFIG, MOCK_PRODUCTS, MOCK_STORE_CATEGORIES } from '../constants';
+import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, ActivityLog, SmartAssistantConfig, CrawlerSource, StoreProduct, StoreConfig, StoreOrder, StoreCategory, CartItem } from '../types';
+import { TRANSLATIONS, INITIAL_STORE_CONFIG, MOCK_PRODUCTS, MOCK_STORE_CATEGORIES, MOCK_ORDERS } from '../constants';
 import { storage } from '../utils/storage';
 import { cache } from '../utils/cache';
 
@@ -74,6 +74,13 @@ interface AppContextType {
   storeConfig: StoreConfig;
   updateStoreConfig: (updates: Partial<StoreConfig>) => void;
   storeCategories: StoreCategory[];
+  cart: CartItem[];
+  addToCart: (product: StoreProduct) => void;
+  removeFromCart: (productId: string) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  storeOrders: StoreOrder[];
+  updateOrder: (order: StoreOrder) => void;
+  deleteOrder: (id: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -103,10 +110,12 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   const [smartConfig, setSmartConfig] = useState<SmartAssistantConfig>(storage.getSmartConfig());
   const [crawlerSources, setCrawlerSources] = useState<CrawlerSource[]>(storage.getCrawlerSources());
 
-  // Store State (Mock persistence handled here for simplicity, ideally separate context)
+  // Store State
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(MOCK_PRODUCTS);
   const [storeConfig, setStoreConfig] = useState<StoreConfig>(INITIAL_STORE_CONFIG);
-  const [storeCategories] = useState<StoreCategory[]>(MOCK_STORE_CATEGORIES); // Just mock read-only for now
+  const [storeCategories] = useState<StoreCategory[]>(MOCK_STORE_CATEGORIES);
+  const [storeOrders, setStoreOrders] = useState<StoreOrder[]>(MOCK_ORDERS);
+  const [cart, setCart] = useState<CartItem[]>([]);
 
   // Initialize Cache Driver
   useEffect(() => {
@@ -388,6 +397,37 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
       logActivity('store_update_config', 'Updated store settings');
   };
 
+  // Cart Logic
+  const addToCart = (product: StoreProduct) => {
+      setCart(prev => {
+          const exists = prev.find(item => item.productId === product.id);
+          if (exists) {
+              return prev.map(item => item.productId === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+          }
+          return [...prev, { productId: product.id, quantity: 1 }];
+      });
+  };
+  const removeFromCart = (productId: string) => {
+      setCart(prev => prev.filter(item => item.productId !== productId));
+  };
+  const updateCartQuantity = (productId: string, quantity: number) => {
+      if (quantity <= 0) {
+          removeFromCart(productId);
+          return;
+      }
+      setCart(prev => prev.map(item => item.productId === productId ? { ...item, quantity } : item));
+  };
+
+  // Order Actions
+  const updateOrder = (updatedOrder: StoreOrder) => {
+      setStoreOrders(prev => prev.map(o => o.id === updatedOrder.id ? updatedOrder : o));
+      logActivity('update_order', `Updated order ID: ${updatedOrder.id} status to ${updatedOrder.status}`);
+  };
+  const deleteOrder = (id: string) => {
+      setStoreOrders(prev => prev.filter(o => o.id !== id));
+      logActivity('delete_order', `Deleted order ID: ${id}`);
+  };
+
   const value = {
     lang, setLang, t,
     themeMode, toggleThemeMode,
@@ -410,7 +450,9 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     crawlerSources, addCrawlerSource, deleteCrawlerSource,
     // Store
     storeProducts, addStoreProduct, updateStoreProduct, deleteStoreProduct,
-    storeConfig, updateStoreConfig, storeCategories
+    storeConfig, updateStoreConfig, storeCategories,
+    cart, addToCart, removeFromCart, updateCartQuantity,
+    storeOrders, updateOrder, deleteOrder
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

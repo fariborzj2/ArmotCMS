@@ -1,4 +1,4 @@
-import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, StoreProduct, StoreConfig, StoreCategory } from './types';
+import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, StoreProduct, StoreConfig, StoreCategory, StoreOrder } from './types';
 
 export const TRANSLATIONS: Translation = {
   // General
@@ -447,7 +447,16 @@ export const TRANSLATIONS: Translation = {
   details: { fa: 'مشخصات', en: 'Details' },
   related_products: { fa: 'محصولات مرتبط', en: 'Related Products' },
   out_of_stock: { fa: 'ناموجود', en: 'Out of Stock' },
-  visit_store: { fa: 'ورود به فروشگاه', en: 'Visit Store' }
+  visit_store: { fa: 'ورود به فروشگاه', en: 'Visit Store' },
+  cart: { fa: 'سبد خرید', en: 'Cart' },
+  checkout: { fa: 'تسویه حساب', en: 'Checkout' },
+  total: { fa: 'جمع کل', en: 'Total' },
+  empty_cart: { fa: 'سبد خرید خالی است', en: 'Cart is empty' },
+  items: { fa: 'آیتم‌ها', en: 'Items' },
+  customer: { fa: 'مشتری', en: 'Customer' },
+  shipped: { fa: 'ارسال شده', en: 'Shipped' },
+  paid: { fa: 'پرداخت شده', en: 'Paid' },
+  canceled: { fa: 'لغو شده', en: 'Canceled' }
 };
 
 export const MOCK_PLUGINS: Plugin[] = [
@@ -527,7 +536,7 @@ export const MOCK_PLUGINS: Plugin[] = [
     description: 'ماژول کامل فروشگاهی با پشتیبانی از محصولات فیزیکی و دیجیتال.',
     version: '1.0.0',
     author: 'تیم آرموت',
-    active: true,
+    active: false, // Changed to false so user can activate it manually
     installed: true,
     type: 'extension',
   }
@@ -762,6 +771,25 @@ export const MOCK_PRODUCTS: StoreProduct[] = [
     createdAt: '2024-03-22',
     featuredImage: 'https://images.unsplash.com/photo-1558494949-ef526b0042a0?w=500&q=80'
   }
+];
+
+export const MOCK_ORDERS: StoreOrder[] = [
+    {
+        id: 'ord-1001',
+        customerName: 'Ali Rezaei',
+        totalPrice: 450000,
+        status: 'paid',
+        date: '2024-04-01T10:00:00Z',
+        items: [{ productId: 'p1', quantity: 1, priceAtPurchase: 450000 }]
+    },
+    {
+        id: 'ord-1002',
+        customerName: 'Sarah Kamali',
+        totalPrice: 300000, // $5 * 60000
+        status: 'pending',
+        date: '2024-04-02T14:30:00Z',
+        items: [{ productId: 'p2', quantity: 1, priceAtPurchase: 300000 }]
+    }
 ];
 
 export const INITIAL_STORE_CONFIG: StoreConfig = {
