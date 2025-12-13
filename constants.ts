@@ -1,4 +1,4 @@
-import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag } from './types';
+import { Plugin, Translation, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, StoreProduct, StoreConfig } from './types';
 
 export const TRANSLATIONS: Translation = {
   // General
@@ -51,6 +51,7 @@ export const TRANSLATIONS: Translation = {
   nav_engagement: { fa: 'تعاملات', en: 'Engagement' },
   nav_design: { fa: 'ظاهر و قالب', en: 'Appearance' },
   nav_system: { fa: 'سیستم', en: 'System' },
+  nav_store: { fa: 'فروشگاه', en: 'Store' },
 
   // User Fields & Roles
   full_name: { fa: 'نام کامل', en: 'Full Name' },
@@ -412,6 +413,33 @@ export const TRANSLATIONS: Translation = {
   search_placeholder_admin: { fa: 'جستجو در لیست...', en: 'Search list...' },
   access_denied: { fa: 'دسترسی غیرمجاز', en: 'Access Denied' },
   access_denied_msg: { fa: 'شما اجازه دسترسی به این صفحه را ندارید.', en: 'You do not have permission to access this page.' },
+
+  // --- STORE ---
+  store: { fa: 'فروشگاه', en: 'Store' },
+  products: { fa: 'محصولات', en: 'Products' },
+  orders: { fa: 'سفارش‌ها', en: 'Orders' },
+  store_settings: { fa: 'تنظیمات فروشگاه', en: 'Store Settings' },
+  add_product: { fa: 'افزودن محصول', en: 'Add Product' },
+  price: { fa: 'قیمت', en: 'Price' },
+  stock: { fa: 'موجودی', en: 'Stock' },
+  sku: { fa: 'کد محصول', en: 'SKU' },
+  dollar_rate: { fa: 'نرخ دلار', en: 'Dollar Rate' },
+  base_price: { fa: 'قیمت پایه', en: 'Base Price' },
+  final_price: { fa: 'قیمت نهایی', en: 'Final Price' },
+  price_model: { fa: 'مدل قیمت‌گذاری', en: 'Pricing Model' },
+  fixed: { fa: 'ثابت (تومان)', en: 'Fixed (Toman)' },
+  dollar_based: { fa: 'دلاری', en: 'Dollar Based' },
+  product_type: { fa: 'نوع محصول', en: 'Product Type' },
+  physical: { fa: 'فیزیکی', en: 'Physical' },
+  digital: { fa: 'دیجیتال/دانلود', en: 'Digital/Download' },
+  service: { fa: 'خدمات', en: 'Service' },
+  has_single_page: { fa: 'دارای صفحه اختصاصی', en: 'Has Single Page' },
+  no_index: { fa: 'عدم ایندکس (NoIndex)', en: 'No Index' },
+  available: { fa: 'موجود', en: 'Available' },
+  unavailable: { fa: 'ناموجود', en: 'Unavailable' },
+  update_rate: { fa: 'بروزرسانی نرخ', en: 'Update Rate' },
+  toman: { fa: 'تومان', en: 'Toman' },
+  usd: { fa: 'دلار', en: 'USD' }
 };
 
 export const MOCK_PLUGINS: Plugin[] = [
@@ -481,6 +509,16 @@ export const MOCK_PLUGINS: Plugin[] = [
     description: 'تولید محتوا، پاسخ به نظرات و زمان‌بندی هوشمند.',
     version: '0.5.0',
     author: 'هوش مصنوعی',
+    active: true,
+    installed: true,
+    type: 'extension',
+  },
+  {
+    id: 'armot-store',
+    name: 'فروشگاه ساز حرفه‌ای',
+    description: 'ماژول کامل فروشگاهی با پشتیبانی از محصولات فیزیکی و دیجیتال.',
+    version: '1.0.0',
+    author: 'تیم آرموت',
     active: true,
     installed: true,
     type: 'extension',
@@ -671,4 +709,48 @@ export const INITIAL_SMART_CONFIG = {
   preferredModel: 'gemini-2.5-flash' as const,
   replyTone: 'formal' as const,
   dailyReplyLimit: 50,
+};
+
+// --- STORE MOCKS ---
+export const MOCK_PRODUCTS: StoreProduct[] = [
+  {
+    id: 'p1',
+    title: 'قالب چندمنظوره آرموت',
+    slug: 'armot-theme',
+    sku: 'THEME-001',
+    type: 'digital',
+    priceModel: 'fixed',
+    basePrice: 450000,
+    stock: 999,
+    isAvailable: true,
+    excerpt: 'بهترین قالب برای سایت‌های شرکتی',
+    hasSinglePage: true,
+    status: 'published',
+    createdAt: '2024-03-20',
+    featuredImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&q=80'
+  },
+  {
+    id: 'p2',
+    title: 'سرور مجازی (یک ماهه)',
+    slug: 'vps-monthly',
+    sku: 'VPS-US-01',
+    type: 'service',
+    priceModel: 'dollar_based',
+    basePrice: 5, // $5
+    stock: 50,
+    isAvailable: true,
+    excerpt: 'سرور ابری پرسرعت در آلمان',
+    hasSinglePage: true,
+    status: 'published',
+    createdAt: '2024-03-22',
+    featuredImage: 'https://images.unsplash.com/photo-1558494949-ef526b0042a0?w=500&q=80'
+  }
+];
+
+export const INITIAL_STORE_CONFIG: StoreConfig = {
+  currency: 'IRT',
+  dollarRate: 60000,
+  lastRateUpdate: new Date().toISOString(),
+  enableTax: false,
+  taxRate: 9
 };

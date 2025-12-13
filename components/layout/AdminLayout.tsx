@@ -24,7 +24,9 @@ import {
   Sparkles,
   User as UserIcon,
   ChevronRight,
-  Search
+  Search,
+  ShoppingBag,
+  ShoppingCart
 } from 'lucide-react';
 
 type NavGroup = {
@@ -40,7 +42,7 @@ type NavGroup = {
 };
 
 export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
-  const { t, logoutUser, themeMode, toggleThemeMode, user, lang, setLang, messages, comments, isRTL } = useApp();
+  const { t, logoutUser, themeMode, toggleThemeMode, user, lang, setLang, messages, comments, isRTL, plugins } = useApp();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -48,6 +50,7 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
 
   const unreadMessages = messages.filter(m => !m.read).length;
   const pendingComments = comments.filter(c => c.status === 'pending').length;
+  const isStoreActive = plugins.some(p => p.id === 'armot-store' && p.active);
 
   const navGroups: NavGroup[] = [
     {
@@ -68,6 +71,14 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
             { icon: ImageIcon, label: 'media', path: '/admin/media', roles: ['admin', 'editor'] },
         ]
     },
+    ...(isStoreActive ? [{
+        id: 'store',
+        label: 'nav_store',
+        items: [
+            { icon: ShoppingBag, label: 'products', path: '/admin/store/products', roles: ['admin', 'editor'] },
+            { icon: Settings, label: 'store_settings', path: '/admin/store/settings', roles: ['admin'] },
+        ]
+    }] : []),
     {
         id: 'engagement',
         label: 'nav_engagement',

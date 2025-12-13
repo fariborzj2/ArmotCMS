@@ -18,7 +18,9 @@ import { Profile } from './pages/admin/Profile';
 import { Settings } from './pages/admin/Settings';
 import { ActivityLogs } from './pages/admin/ActivityLogs';
 import { Tools } from './pages/admin/Tools';
-import { SmartAssistant } from './pages/admin/plugins/SmartAssistant'; // New Plugin Route
+import { SmartAssistant } from './pages/admin/plugins/SmartAssistant';
+import { ProductManager } from './pages/admin/store/ProductManager'; // New
+import { StoreSettings } from './pages/admin/store/StoreSettings'; // New
 import { Home } from './pages/public/Home';
 import { About } from './pages/public/About';
 import { Contact } from './pages/public/Contact';
@@ -116,6 +118,7 @@ const AppRoutes = () => {
   // Check Plugin Status
   const isBlogActive = plugins.some(p => p.id === 'armot-blog' && p.active);
   const isSmartActive = plugins.some(p => p.id === 'smart-assistant' && p.active);
+  const isStoreActive = plugins.some(p => p.id === 'armot-store' && p.active);
 
   return (
     <Routes>
@@ -169,6 +172,7 @@ const AppRoutes = () => {
              <Route path="comments" element={<CommentManager />} />
              <Route path="media" element={<MediaManager />} />
              {isSmartActive && <Route path="smart-assistant" element={<SmartAssistant />} />}
+             {isStoreActive && <Route path="store/products" element={<ProductManager />} />}
          </Route>
 
          {/* Admin Only Access */}
@@ -180,6 +184,7 @@ const AppRoutes = () => {
              <Route path="settings" element={<Settings />} />
              <Route path="logs" element={<ActivityLogs />} />
              <Route path="tools" element={<Tools />} />
+             {isStoreActive && <Route path="store/settings" element={<StoreSettings />} />}
          </Route>
 
          <Route path="*" element={<Navigate to="/admin" replace />} />

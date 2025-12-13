@@ -215,3 +215,57 @@ export interface Translation {
     en: string;
   };
 }
+
+// --- E-COMMERCE TYPES ---
+
+export type ProductType = 'physical' | 'digital' | 'service';
+export type PricingModel = 'fixed' | 'dollar_based';
+
+export interface StoreProduct {
+  id: string;
+  title: string;
+  slug: string;
+  sku: string;
+  type: ProductType;
+  
+  // Pricing
+  priceModel: PricingModel;
+  basePrice: number; // If dollar_based, this is in USD. If fixed, in Toman.
+  salePrice?: number;
+  
+  // Inventory
+  stock: number;
+  isAvailable: boolean;
+  
+  // Content
+  excerpt?: string;
+  description?: string;
+  featuredImage?: string;
+  gallery?: string[];
+  
+  // SEO
+  hasSinglePage: boolean; // If false, no detail page, just add to cart/list view
+  metaTitle?: string;
+  metaDescription?: string;
+  noIndex?: boolean;
+  
+  status: 'published' | 'draft' | 'archived';
+  createdAt: string;
+}
+
+export interface StoreConfig {
+  currency: 'IRT' | 'IRR' | 'USD';
+  dollarRate: number; // Current exchange rate
+  lastRateUpdate: string;
+  enableTax: boolean;
+  taxRate: number;
+}
+
+export interface StoreOrder {
+  id: string;
+  customerName: string;
+  totalPrice: number;
+  status: 'pending' | 'paid' | 'shipped' | 'canceled';
+  date: string;
+  items: Array<{ productId: string; quantity: number; priceAtPurchase: number }>;
+}

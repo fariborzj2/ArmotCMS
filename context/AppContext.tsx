@@ -1,8 +1,8 @@
 
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, ActivityLog, SmartAssistantConfig, CrawlerSource } from '../types';
-import { TRANSLATIONS } from '../constants';
+import { Language, ThemeMode, SiteConfig, Plugin, User, LayoutTheme, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, BlogTag, ActivityLog, SmartAssistantConfig, CrawlerSource, StoreProduct, StoreConfig, StoreOrder } from '../types';
+import { TRANSLATIONS, INITIAL_STORE_CONFIG, MOCK_PRODUCTS } from '../constants';
 import { storage } from '../utils/storage';
 import { cache } from '../utils/cache';
 
@@ -65,6 +65,14 @@ interface AppContextType {
   crawlerSources: CrawlerSource[];
   addCrawlerSource: (source: CrawlerSource) => void;
   deleteCrawlerSource: (id: string) => void;
+
+  // Store Module
+  storeProducts: StoreProduct[];
+  addStoreProduct: (p: StoreProduct) => void;
+  updateStoreProduct: (p: StoreProduct) => void;
+  deleteStoreProduct: (id: string) => void;
+  storeConfig: StoreConfig;
+  updateStoreConfig: (updates: Partial<StoreConfig>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -93,6 +101,10 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
   // Smart Assistant State
   const [smartConfig, setSmartConfig] = useState<SmartAssistantConfig>(storage.getSmartConfig());
   const [crawlerSources, setCrawlerSources] = useState<CrawlerSource[]>(storage.getCrawlerSources());
+
+  // Store State (Mock persistence handled here for simplicity, ideally separate context)
+  const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(MOCK_PRODUCTS);
+  const [storeConfig, setStoreConfig] = useState<StoreConfig>(INITIAL_STORE_CONFIG);
 
   // Initialize Cache Driver
   useEffect(() => {
@@ -227,12 +239,7 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     logActivity('delete_category', `Deleted category ID: ${id}`);
   };
   const reorderCategories = (newCategories: BlogCategory[]) => {
-    // We only update the ones passed in to avoid overwriting unrelated state, but for simplicity here we replace
-    // In a real DB sync you'd batch update order
     setCategories(prev => {
-        // Map over previous, if found in new, use new, else keep previous
-        // OR better: if newCategories contains ALL, just set it.
-        // Assuming newCategories is the full list or a significant subset that dictates order/parenting
         const lookup = new Map(newCategories.map(c => [c.id, c]));
         return prev.map(c => lookup.get(c.id) || c);
     });
@@ -305,7 +312,6 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     logActivity('update_menu_item', `Updated menu item: ${item.label.en}`);
   };
   const reorderMenus = (items: MenuItem[]) => {
-      // Merge reordered items into existing state
       setMenus(prev => {
           const others = prev.filter(p => !items.find(i => i.id === p.id));
           return [...others, ...items];
@@ -321,7 +327,6 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     setUser(newUser);
     storage.saveUser(newUser);
     storage.login('mock-jwt-token');
-    // Manual log since 'user' state might not update immediately for logActivity usage
     const newLog: ActivityLog = {
       id: Date.now().toString(),
       user: newUser.username,
@@ -363,6 +368,24 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     logActivity('delete_crawler_source', `Deleted crawler source ID: ${id}`);
   };
 
+  // Store Actions
+  const addStoreProduct = (p: StoreProduct) => {
+      setStoreProducts(prev => [...prev, p]);
+      logActivity('store_add_product', `Added product: ${p.title}`);
+  };
+  const updateStoreProduct = (p: StoreProduct) => {
+      setStoreProducts(prev => prev.map(prod => prod.id === p.id ? p : prod));
+      logActivity('store_update_product', `Updated product: ${p.title}`);
+  };
+  const deleteStoreProduct = (id: string) => {
+      setStoreProducts(prev => prev.filter(p => p.id !== id));
+      logActivity('store_delete_product', `Deleted product ID: ${id}`);
+  };
+  const updateStoreConfig = (updates: Partial<StoreConfig>) => {
+      setStoreConfig(prev => ({ ...prev, ...updates }));
+      logActivity('store_update_config', 'Updated store settings');
+  };
+
   const value = {
     lang, setLang, t,
     themeMode, toggleThemeMode,
@@ -382,7 +405,10 @@ export const AppProvider = ({ children }: { children?: ReactNode }) => {
     cacheSystem: cache,
     restoreBackup,
     smartConfig, updateSmartConfig,
-    crawlerSources, addCrawlerSource, deleteCrawlerSource
+    crawlerSources, addCrawlerSource, deleteCrawlerSource,
+    // Store
+    storeProducts, addStoreProduct, updateStoreProduct, deleteStoreProduct,
+    storeConfig, updateStoreConfig
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
