@@ -1,14 +1,12 @@
-
 import React, { useState } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { Link } from 'react-router-dom';
-import { Card } from '../../../components/ui/Card';
 import { useSeo } from '../../../hooks/useSeo';
-import { User, Calendar, Tag, ArrowRight, ArrowLeft, Search, Pin, Folder } from 'lucide-react';
-import { formatDate } from '../../../utils/date';
+import { Search, Folder } from 'lucide-react';
+import { PostCard } from '../../../components/blog/PostCard';
 
 export const BlogHome = () => {
-  const { t, posts, categories, isRTL, config, lang } = useApp();
+  const { t, posts, categories, config } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
 
   useSeo({
@@ -56,14 +54,17 @@ export const BlogHome = () => {
         </div>
 
         {/* Categories List */}
-        <div className="flex flex-wrap justify-center gap-3 animate-fadeIn">
+        <div 
+            className="flex flex-nowrap overflow-x-auto gap-3 animate-fadeIn pb-2 w-full justify-start md:justify-center [&::-webkit-scrollbar]:hidden"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
             {categories
                 .sort((a,b) => (a.order || 0) - (b.order || 0))
                 .map(cat => (
                 <Link 
                     key={cat.id} 
                     to={`/blog/${cat.slug}`}
-                    className="group flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-600 dark:text-gray-300 hover:border-primary-500 hover:text-primary-600 dark:hover:border-primary-500 dark:hover:text-primary-400 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                    className="group flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-600 dark:text-gray-300 hover:border-primary-500 hover:text-primary-600 dark:hover:border-primary-500 dark:hover:text-primary-400 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5 shrink-0 whitespace-nowrap"
                 >
                     <Folder size={16} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
                     {cat.name}
@@ -77,50 +78,9 @@ export const BlogHome = () => {
       
       {filteredPosts.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map(post => {
-                const category = categories.find(c => c.id === post.categoryId);
-                return (
-                    <Link key={post.id} to={`/blog/${category?.slug || 'uncategorized'}/${post.id}-${post.slug}`} className="group h-full">
-                        <Card className={`h-full flex flex-col p-0 overflow-hidden border-2 transition-all relative ${post.pinned ? 'border-primary-200 dark:border-primary-900 ring-2 ring-primary-100 dark:ring-primary-900/50' : 'border-transparent hover:border-primary-100 dark:hover:border-primary-900'}`}>
-                            
-                            {post.pinned && (
-                                <div className="absolute top-3 right-3 rtl:right-auto rtl:left-3 z-10 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-1 rounded-full shadow-sm flex items-center gap-1">
-                                    <Pin size={10} fill="currentColor" /> {t('pinned')}
-                                </div>
-                            )}
-
-                            {post.featuredImage && (
-                                <div className="h-48 overflow-hidden">
-                                    <img src={post.featuredImage} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                </div>
-                            )}
-                            <div className="p-6 flex-1 flex flex-col">
-                                <div className="flex items-center gap-2 text-xs text-primary-600 mb-2">
-                                    <span className="bg-primary-50 dark:bg-primary-900/30 px-2 py-1 rounded font-bold">
-                                        {category?.name}
-                                    </span>
-                                    <span className="text-gray-400">•</span>
-                                    <span className="text-gray-500">{formatDate(post.publishDate || post.createdAt, lang)}</span>
-                                </div>
-                                <h2 className="text-xl font-bold mb-3 dark:text-white group-hover:text-primary-600 transition-colors">
-                                    {post.title}
-                                </h2>
-                                <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-3 flex-1">
-                                    {post.excerpt}
-                                </p>
-                                <div className="flex items-center justify-between text-sm mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
-                                    <div className="flex items-center gap-2 text-gray-500">
-                                        <User size={14} /> {post.author}
-                                    </div>
-                                    <span className="text-primary-600 font-bold flex items-center">
-                                        {t('read_more')} {isRTL ? <ArrowLeft size={14} className="mr-1" /> : <ArrowRight size={14} className="ml-1" />}
-                                    </span>
-                                </div>
-                            </div>
-                        </Card>
-                    </Link>
-                );
-            })}
+            {filteredPosts.map(post => (
+                <PostCard key={post.id} post={post} />
+            ))}
         </div>
       ) : (
         <div className="text-center py-12 text-gray-500 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-200 dark:border-gray-800">

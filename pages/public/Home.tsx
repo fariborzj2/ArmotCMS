@@ -1,12 +1,11 @@
-
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { Button } from '../../components/ui/Button';
-import { ArrowLeft, ArrowRight, Layers, Zap, Shield, Calendar, User, MessageSquare, Quote } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Layers, Zap, Shield, MessageSquare, Quote } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSeo } from '../../hooks/useSeo';
-import { Card } from '../../components/ui/Card';
 import { formatDate } from '../../utils/date';
+import { PostCard } from '../../components/blog/PostCard';
 
 export const Home = () => {
   const { t, isRTL, config, posts, comments, categories, lang } = useApp();
@@ -103,48 +102,9 @@ export const Home = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {latestPosts.map(post => {
-                        const category = categories.find(c => c.id === post.categoryId);
-                        return (
-                            <Link key={post.id} to={`/blog/${category?.slug || 'uncategorized'}/${post.id}-${post.slug}`} className="group h-full">
-                                <Card className="h-full flex flex-col p-0 overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-900">
-                                    {post.featuredImage && (
-                                        <div className="h-56 overflow-hidden relative">
-                                            <img 
-                                                src={post.featuredImage} 
-                                                alt={post.title} 
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
-                                            <div className="absolute bottom-4 right-4 rtl:right-4 rtl:left-auto ltr:left-4 ltr:right-auto text-white text-xs font-bold bg-primary-600 px-3 py-1 rounded-full shadow-lg">
-                                                {category?.name}
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div className="p-6 flex-1 flex flex-col">
-                                        <div className="flex items-center gap-4 text-xs text-gray-400 mb-3">
-                                            <span className="flex items-center gap-1">
-                                                <Calendar size={12} /> {formatDate(post.publishDate || post.createdAt, lang)}
-                                            </span>
-                                            <span className="flex items-center gap-1">
-                                                <User size={12} /> {post.author}
-                                            </span>
-                                        </div>
-                                        <h3 className="text-xl font-bold mb-3 dark:text-white group-hover:text-primary-600 transition-colors line-clamp-2">
-                                            {post.title}
-                                        </h3>
-                                        <p className="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-3 flex-1 leading-relaxed">
-                                            {post.excerpt}
-                                        </p>
-                                        <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-sm font-bold text-primary-600">
-                                            {t('read_more')}
-                                            {isRTL ? <ArrowLeft size={16} /> : <ArrowRight size={16} />}
-                                        </div>
-                                    </div>
-                                </Card>
-                            </Link>
-                        );
-                    })}
+                    {latestPosts.map(post => (
+                        <PostCard key={post.id} post={post} />
+                    ))}
                 </div>
                 
                 <div className="text-center mt-12">

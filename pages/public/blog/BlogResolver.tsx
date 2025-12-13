@@ -1,11 +1,9 @@
-
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
-import { Card } from '../../../components/ui/Card';
 import { User, Folder } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
+import { PostCard } from '../../../components/blog/PostCard';
 
 export const BlogResolver = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -62,17 +60,7 @@ const PostList = ({ posts }: { posts: any[] }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {posts.map(post => (
-                <Link key={post.id} to={`/blog/post/${post.id}-${post.slug}`} className="group">
-                    <Card className="h-full hover:shadow-lg transition-shadow">
-                        {post.featuredImage && (
-                            <img src={post.featuredImage} alt={post.title} className="w-full h-48 object-cover rounded-t-xl" />
-                        )}
-                        <div className="p-4">
-                            <h3 className="font-bold text-lg dark:text-white group-hover:text-primary-600 mb-2">{post.title}</h3>
-                            <p className="text-gray-500 text-sm">{post.createdAt}</p>
-                        </div>
-                    </Card>
-                </Link>
+                <PostCard key={post.id} post={post} />
             ))}
         </div>
     );

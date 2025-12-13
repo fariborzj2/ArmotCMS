@@ -50,7 +50,7 @@ export const Installer = () => {
       loginUser(newUser);
 
       // 4. Redirect
-      navigate('/admin');
+      navigate('/');
       setIsLoading(false);
     }, 2000);
   };

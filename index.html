@@ -24,6 +24,7 @@
       :root {
         --font-primary: 'Estedad';
         --radius-base: 1rem;
+        --app-gap: 1.5rem; /* Default 24px/gap-6 */
         
         /* Default Primary Color (Sky/Blue) - Will be overridden by JS */
         --color-primary-50: #f0f9ff;
@@ -90,6 +91,12 @@
               'lg': 'calc(var(--radius-base) * 0.3)',
               'md': '4px',
               'sm': '2px',
+            },
+            spacing: {
+              'base': 'var(--app-gap)',
+            },
+            gap: {
+              'base': 'var(--app-gap)',
             }
           }
         }

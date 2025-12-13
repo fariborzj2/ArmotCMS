@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { UserPlus, Trash2, Edit2, Shield, Image as ImageIcon, Search as SearchIcon, ChevronLeft, Save } from 'lucide-react';
+import { Input } from '../../components/ui/Input';
+import { UserPlus, Trash2, Edit2, Image as ImageIcon, Search as SearchIcon, ChevronLeft, Save } from 'lucide-react';
 import { User } from '../../types';
 import { MediaSelector } from '../../components/media/MediaSelector';
 import { Pagination } from '../../components/ui/Pagination';
@@ -79,13 +80,9 @@ export const UserManager = () => {
     setIsEditing(false);
   };
 
-  // Modern Input Style
-  const inputClass = "w-full px-5 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border-2 border-transparent hover:bg-white hover:border-gray-200 dark:hover:bg-gray-900 dark:hover:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/30 focus:ring-4 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all duration-300 text-sm font-medium";
-  const labelClass = "block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2.5 ml-1";
-
   if (isEditing) {
       return (
-          <div className="space-y-6 pb-24">
+          <div className="space-y-6 pb-12 animate-fadeIn">
               <div className="flex items-center gap-4">
                   <button onClick={() => setIsEditing(false)} className="p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
                       <ChevronLeft size={24} className="rtl:rotate-180" />
@@ -93,107 +90,103 @@ export const UserManager = () => {
                   <h1 className="text-2xl font-black dark:text-white">{editUser.email ? t('edit_user') : t('add_user')}</h1>
               </div>
               
-              <Card>
-                  <form onSubmit={handleSave} className="space-y-6">
-                      <div className="flex flex-col items-center justify-center mb-8">
-                           <div className="w-28 h-28 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden mb-3 border-4 border-white dark:border-gray-800 shadow-xl relative group cursor-pointer transition-transform hover:scale-105" onClick={() => setShowMediaModal(true)}>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Left Column: Avatar */}
+                  <div className="lg:col-span-1">
+                      <Card className="flex flex-col items-center p-8">
+                           <div className="w-40 h-40 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center overflow-hidden mb-6 border-4 border-white dark:border-gray-800 shadow-xl relative group cursor-pointer transition-transform hover:scale-105" onClick={() => setShowMediaModal(true)}>
                                {editUser.avatar ? (
                                    <img src={editUser.avatar} alt="avatar" className="w-full h-full object-cover" />
                                ) : (
-                                   <ImageIcon size={32} className="text-gray-400" />
+                                   <ImageIcon size={48} className="text-gray-400" />
                                )}
-                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                   <Edit2 size={24} className="text-white" />
+                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
+                                   <Edit2 size={32} className="text-white" />
                                </div>
                            </div>
-                           <span className="text-xs font-bold text-primary-500 uppercase tracking-wide">{t('avatar')}</span>
-                      </div>
+                           <Button variant="secondary" size="sm" onClick={() => setShowMediaModal(true)}>
+                               {t('select_media')}
+                           </Button>
+                      </Card>
+                  </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                           <div>
-                               <label className={labelClass}>{t('full_name')}</label>
-                               <input 
-                                   type="text" 
-                                   value={editUser.fullName || ''}
-                                   onChange={e => setEditUser({...editUser, fullName: e.target.value})}
-                                   className={inputClass}
-                                   required
-                               />
-                           </div>
+                  {/* Right Column: Form */}
+                  <div className="lg:col-span-2">
+                      <Card>
+                          <form onSubmit={handleSave} className="space-y-6">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                   <Input 
+                                       label={t('full_name')}
+                                       value={editUser.fullName || ''}
+                                       onChange={e => setEditUser({...editUser, fullName: e.target.value})}
+                                       required
+                                   />
 
-                           <div>
-                               <label className={labelClass}>{t('username')}</label>
-                               <input 
-                                   type="text" 
-                                   value={editUser.username || ''}
-                                   onChange={e => setEditUser({...editUser, username: e.target.value})}
-                                   className={inputClass}
-                                   required
-                               />
-                           </div>
+                                   <Input 
+                                       label={t('username')}
+                                       value={editUser.username || ''}
+                                       onChange={e => setEditUser({...editUser, username: e.target.value})}
+                                       required
+                                   />
 
-                           <div>
-                               <label className={labelClass}>{t('email')}</label>
-                               <input 
-                                   type="email" 
-                                   value={editUser.email || ''}
-                                   onChange={e => setEditUser({...editUser, email: e.target.value})}
-                                   className={inputClass}
-                                   required
-                                   disabled={!!users.find(u => u.email === editUser.email && u.role === 'admin' && editUser.role !== 'admin')} // Lock admin email basically
-                               />
-                           </div>
+                                   <Input 
+                                       label={t('email')}
+                                       type="email"
+                                       value={editUser.email || ''}
+                                       onChange={e => setEditUser({...editUser, email: e.target.value})}
+                                       required
+                                       disabled={!!users.find(u => u.email === editUser.email && u.role === 'admin' && editUser.role !== 'admin')}
+                                   />
 
-                           <div>
-                               <label className={labelClass}>{t('mobile')}</label>
-                               <input 
-                                   type="tel" 
-                                   value={editUser.mobile || ''}
-                                   onChange={e => setEditUser({...editUser, mobile: e.target.value})}
-                                   className={inputClass}
-                               />
-                           </div>
-                           
-                           <div>
-                               <label className={labelClass}>{t('role')}</label>
-                               <div className="relative">
-                                   <select 
-                                       value={editUser.role || 'user'}
-                                       onChange={e => setEditUser({...editUser, role: e.target.value as any})}
-                                       className={`${inputClass} appearance-none cursor-pointer`}
-                                   >
-                                       <option value="user">{t('role_user_desc')}</option>
-                                       <option value="editor">{t('role_editor_desc')}</option>
-                                       <option value="admin">{t('role_admin_desc')}</option>
-                                   </select>
-                                   <div className="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 pointer-events-none text-gray-400">
-                                        <ChevronLeft size={16} className="-rotate-90" />
+                                   <Input 
+                                       label={t('mobile')}
+                                       type="tel"
+                                       value={editUser.mobile || ''}
+                                       onChange={e => setEditUser({...editUser, mobile: e.target.value})}
+                                   />
+                                   
+                                   <div>
+                                       <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide ml-1">{t('role')}</label>
+                                       <div className="relative">
+                                           <select 
+                                               value={editUser.role || 'user'}
+                                               onChange={e => setEditUser({...editUser, role: e.target.value as any})}
+                                               className="appearance-none w-full px-5 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border-2 border-transparent hover:bg-white hover:border-gray-200 dark:hover:bg-gray-900 dark:hover:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/30 focus:ring-4 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all duration-300 text-sm font-medium cursor-pointer"
+                                           >
+                                               <option value="user">{t('role_user_desc')}</option>
+                                               <option value="editor">{t('role_editor_desc')}</option>
+                                               <option value="admin">{t('role_admin_desc')}</option>
+                                           </select>
+                                           <div className="absolute top-1/2 right-4 rtl:right-auto rtl:left-4 -translate-y-1/2 pointer-events-none text-gray-400">
+                                                <ChevronLeft size={16} className="-rotate-90" />
+                                           </div>
+                                       </div>
                                    </div>
-                               </div>
-                           </div>
-                      </div>
+                              </div>
 
-                      <div>
-                           <label className={labelClass}>{t('bio')}</label>
-                           <textarea 
-                               value={editUser.bio || ''}
-                               onChange={e => setEditUser({...editUser, bio: e.target.value})}
-                               className={`${inputClass} h-32 resize-none`}
-                           />
-                      </div>
-                  </form>
-              </Card>
+                              <div>
+                                   <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-wide ml-1">{t('bio')}</label>
+                                   <textarea 
+                                       value={editUser.bio || ''}
+                                       onChange={e => setEditUser({...editUser, bio: e.target.value})}
+                                       className="w-full px-5 py-3.5 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border-2 border-transparent hover:bg-white hover:border-gray-200 dark:hover:bg-gray-900 dark:hover:border-gray-700 focus:bg-white dark:focus:bg-gray-900 focus:border-primary-500/30 focus:ring-4 focus:ring-primary-500/10 outline-none text-gray-900 dark:text-white transition-all duration-300 text-sm font-medium h-32 resize-none"
+                                   />
+                              </div>
 
-              {/* Sticky Save Button */}
-              <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-12 md:bottom-12 flex justify-end z-30 pointer-events-none">
-                <Button 
-                    onClick={handleSave} 
-                    size="lg"
-                    className="shadow-2xl shadow-primary-600/40 rounded-full px-8 pointer-events-auto transform hover:scale-105 transition-all"
-                >
-                    <Save size={20} className="mr-2" />
-                    {t('save')}
-                </Button>
+                              {/* Static Save Button */}
+                              <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+                                <Button 
+                                    type="submit"
+                                    size="lg"
+                                    className="rounded-xl px-8 shadow-lg shadow-primary-600/20"
+                                >
+                                    <Save size={20} className="mr-2" />
+                                    {t('save')}
+                                </Button>
+                              </div>
+                          </form>
+                      </Card>
+                  </div>
               </div>
               
               {showMediaModal && (
@@ -217,16 +210,13 @@ export const UserManager = () => {
 
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="relative flex-1">
-            <input 
-                type="text" 
+            <Input 
+                icon={<SearchIcon size={20} />}
                 placeholder={t('search_placeholder_admin')}
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                className="w-full pl-12 pr-4 rtl:pl-4 rtl:pr-12 py-3.5 rounded-2xl border-none bg-white dark:bg-gray-800 dark:text-white shadow-sm focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                fullWidth
             />
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 rtl:left-auto rtl:right-4">
-                <SearchIcon size={20} />
-            </div>
         </div>
         <Button onClick={() => startEdit()} size="lg" className="rounded-2xl">
           <UserPlus size={20} className="mr-2" />

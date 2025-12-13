@@ -44,6 +44,7 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const unreadMessages = messages.filter(m => !m.read).length;
   const pendingComments = comments.filter(c => c.status === 'pending').length;
@@ -101,6 +102,13 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
       navigate('/login');
   };
 
+  const handleGlobalSearch = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+          navigate('/admin/blog'); 
+      }
+  };
+
   return (
     <div className="min-h-screen bg-[#F3F4F6] dark:bg-[#0B0F19] flex transition-colors duration-300 font-sans overflow-hidden">
       {/* Sidebar Overlay */}
@@ -116,16 +124,16 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
         fixed lg:static top-0 z-50 h-screen w-[280px] 
         bg-white dark:bg-[#111827] 
         transition-transform duration-300 ease-in-out transform
-        flex flex-col border-r border-gray-100 dark:border-gray-800 lg:border-none shadow-2xl lg:shadow-none
+        flex flex-col border-r border-gray-100 dark:border-gray-800 lg:border-none shadow-xl lg:shadow-none
         ${isRTL ? 'right-0' : 'left-0'}
         ${sidebarOpen ? 'translate-x-0' : (isRTL ? 'translate-x-full' : '-translate-x-full')}
         lg:translate-x-0
       `}>
          
          {/* Logo */}
-         <div className="h-24 flex items-center px-8 relative">
+         <div className="h-20 flex items-center px-8 relative border-b border-gray-50 dark:border-gray-800/50 lg:border-none">
             <Link to="/" className="flex items-center gap-3 group">
-                <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-primary-500/30 group-hover:scale-105 transition-transform">
+                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
                     <span className="font-bold text-xl">A</span>
                 </div>
                 <div className="flex flex-col">
@@ -137,14 +145,14 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
             {/* Close Button */}
             <button 
                 onClick={() => setSidebarOpen(false)} 
-                className={`lg:hidden absolute top-8 p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ${isRTL ? 'left-4' : 'right-4'}`}
+                className={`lg:hidden absolute top-6 p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors ${isRTL ? 'left-4' : 'right-4'}`}
             >
-                <X size={24} />
+                <X size={20} />
             </button>
          </div>
 
          {/* Navigation */}
-         <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-8 scrollbar-hide">
+         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-8 scrollbar-hide">
             {navGroups.map(group => {
                 const visibleItems = group.items.filter(item => !item.roles || (user && item.roles.includes(user.role)));
                 if (visibleItems.length === 0) return null;
@@ -156,7 +164,7 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
                                 {t(group.label)}
                             </h3>
                         )}
-                        <div className="space-y-1.5">
+                        <div className="space-y-1">
                             {visibleItems.map(item => {
                                 const isActive = location.pathname === item.path;
                                 return (
@@ -165,14 +173,14 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
                                         to={item.path}
                                         onClick={() => setSidebarOpen(false)}
                                         className={`
-                                            flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200 group relative
+                                            flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative
                                             ${isActive 
-                                                ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30 translate-x-1' 
+                                                ? 'bg-primary-600 text-white shadow-sm' 
                                                 : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
                                             }
                                         `}
                                     >
-                                        <div className="flex items-center gap-3.5">
+                                        <div className="flex items-center gap-3">
                                             <item.icon size={20} className={isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors'} strokeWidth={isActive ? 2.5 : 2} />
                                             <span>{t(item.label)}</span>
                                         </div>
@@ -191,7 +199,7 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
          </div>
 
          {/* User Profile */}
-         <div className="p-4 mx-4 mb-4 rounded-3xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50">
+         <div className="p-4 mx-4 mb-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50">
              <div className="flex items-center gap-3">
                  <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-700 flex items-center justify-center text-primary-600 font-bold text-lg shadow-sm">
                      {user?.username.charAt(0).toUpperCase()}
@@ -200,7 +208,7 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
                      <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user?.username}</p>
                      <p className="text-xs text-gray-500 truncate capitalize">{t(user?.role || 'user')}</p>
                  </div>
-                 <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 hover:bg-white dark:hover:bg-gray-700 rounded-full transition-all shadow-sm">
+                 <button onClick={handleLogout} className="p-2 text-gray-400 hover:text-red-500 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all shadow-sm">
                      <LogOut size={16} />
                  </button>
              </div>
@@ -210,9 +218,9 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
           {/* Topbar */}
-          <header className="h-20 flex items-center justify-between px-6 lg:px-10 shrink-0">
+          <header className="h-20 flex items-center justify-between px-6 lg:px-8 shrink-0 bg-[#F3F4F6] dark:bg-[#0B0F19]">
               <div className="flex items-center gap-4">
-                  <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
+                  <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 -ml-2 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
                       <Menu size={20} />
                   </button>
                   <div className="hidden md:flex items-center gap-2 text-sm text-gray-400">
@@ -223,28 +231,34 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
               </div>
 
               <div className="flex items-center gap-3">
-                  {/* Search Bar (Visual Only) */}
-                  <div className="hidden md:flex items-center bg-white dark:bg-[#111827] px-4 py-2.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 w-64">
-                      <Search size={18} className="text-gray-400" />
-                      <input type="text" placeholder={t('search_placeholder_admin')} className="bg-transparent border-none outline-none text-sm ml-2 w-full text-gray-700 dark:text-gray-200 placeholder-gray-400" />
-                  </div>
+                  {/* Search Bar */}
+                  <form onSubmit={handleGlobalSearch} className="hidden md:flex items-center bg-white dark:bg-[#111827] px-4 py-2.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 w-64 group focus-within:ring-2 focus-within:ring-primary-500/20 transition-all">
+                      <Search size={18} className="text-gray-400 group-focus-within:text-primary-500" />
+                      <input 
+                        type="text" 
+                        placeholder={t('search_placeholder_admin')} 
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        className="bg-transparent border-none outline-none text-sm ml-2 w-full text-gray-700 dark:text-gray-200 placeholder-gray-400 h-6" 
+                      />
+                  </form>
 
-                  <Link to="/" target="_blank" className="hidden sm:flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 bg-white dark:bg-[#111827] px-4 py-2.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-md">
+                  <Link to="/" target="_blank" className="hidden sm:flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 bg-white dark:bg-[#111827] px-4 py-2.5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-md">
                       <Globe size={18} />
                       {t('view_site')}
                   </Link>
 
-                  <div className="flex items-center gap-2 bg-white dark:bg-[#111827] p-1.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                  <div className="flex items-center gap-2 bg-white dark:bg-[#111827] p-1 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
                     <button 
                         onClick={() => setLang(lang === 'fa' ? 'en' : 'fa')}
-                        className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-bold text-xs"
+                        className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-bold text-xs"
                     >
                         {lang === 'fa' ? 'EN' : 'FA'}
                     </button>
 
                     <button 
                         onClick={toggleThemeMode}
-                        className="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
                         {themeMode === 'light' ? <Moon size={18} /> : <Sun size={18} />}
                     </button>
@@ -253,7 +267,7 @@ export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
           </header>
 
           {/* Page Content Scrollable Area */}
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-10 pb-20">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-8 pb-20">
               <div className="max-w-[1600px] mx-auto animate-fadeIn">
                   {children}
               </div>

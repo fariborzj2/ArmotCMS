@@ -1,3 +1,4 @@
+
 import { SiteConfig, Plugin, User, Page, Comment, MediaFile, MenuItem, ContactMessage, BlogPost, BlogCategory, ActivityLog, SmartAssistantConfig, CrawlerSource, BlogTag } from '../types';
 import { MOCK_PLUGINS, INITIAL_CONFIG, MOCK_PAGES, MOCK_COMMENTS, MOCK_MEDIA, MOCK_MENUS, MOCK_MESSAGES, MOCK_POSTS, MOCK_CATEGORIES, MOCK_TAGS, INITIAL_SMART_CONFIG } from '../constants';
 
@@ -26,10 +27,11 @@ const memoryStorage: Record<string, string> = {};
 // Feature detection to check if LocalStorage is actually usable
 let isStorageAvailable = false;
 try {
-  if (typeof window !== 'undefined' && window.localStorage) {
+  if (typeof window !== 'undefined') {
+    const storage = window.localStorage;
     const x = '__storage_test__';
-    window.localStorage.setItem(x, x);
-    window.localStorage.removeItem(x);
+    storage.setItem(x, x);
+    storage.removeItem(x);
     isStorageAvailable = true;
   }
 } catch (e) {

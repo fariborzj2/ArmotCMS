@@ -164,6 +164,7 @@ export interface SiteConfig {
   uiRadius?: 'sm' | 'md' | 'lg' | 'full';
   uiFont?: 'estedad' | 'vazir' | 'inter';
   uiDensity?: 'compact' | 'comfortable';
+  uiGap?: 'compact' | 'normal' | 'wide';
   uiPrimaryColor?: 'blue' | 'indigo' | 'purple' | 'rose' | 'amber' | 'emerald' | 'sky';
 }
 

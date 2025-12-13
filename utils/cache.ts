@@ -1,5 +1,4 @@
 
-
 type CacheDriver = 'file' | 'redis' | 'memcached' | 'memory';
 
 interface CacheItem<T> {
@@ -10,10 +9,23 @@ interface CacheItem<T> {
 class CacheManager {
   private driver: CacheDriver;
   private memoryStore: Map<string, CacheItem<any>>;
+  private isStorageAvailable: boolean;
 
   constructor(driver: CacheDriver = 'memory') {
     this.driver = driver;
     this.memoryStore = new Map();
+    this.isStorageAvailable = false;
+    try {
+      if (typeof window !== 'undefined') {
+        const storage = window.localStorage;
+        const x = '__cache_test__';
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        this.isStorageAvailable = true;
+      }
+    } catch (e) {
+      this.isStorageAvailable = false;
+    }
   }
 
   setDriver(driver: CacheDriver) {
@@ -36,7 +48,7 @@ class CacheManager {
       }
       
       // Fallback / Implementation for 'file' (using localStorage)
-      if (this.driver === 'file' && typeof window !== 'undefined') {
+      if (this.driver === 'file' && this.isStorageAvailable) {
           try {
              window.localStorage.setItem(`cache_${key}`, JSON.stringify({ value, expiry }));
           } catch(e) {
@@ -63,13 +75,11 @@ class CacheManager {
     }
 
     // 2. Try Local Storage (Persistence) only if 'file' driver
-    if (this.driver === 'file') {
+    if (this.driver === 'file' && this.isStorageAvailable) {
         let itemStr: string | null = null;
         try {
-            if (typeof window !== 'undefined') {
-                 // Accessing localStorage might throw
-                 itemStr = window.localStorage.getItem(`cache_${key}`);
-            }
+             // Accessing localStorage might throw
+             itemStr = window.localStorage.getItem(`cache_${key}`);
         } catch (e) {
             // Ignore storage errors
         }
@@ -101,7 +111,7 @@ class CacheManager {
   flush(): void {
     this.memoryStore.clear();
     try {
-        if (this.driver === 'file' && typeof window !== 'undefined') {
+        if (this.driver === 'file' && this.isStorageAvailable) {
             // Safely iterating keys avoiding direct Object.keys on storage object which can trigger SecurityError
             const keysToRemove: string[] = [];
             try {
@@ -129,7 +139,7 @@ class CacheManager {
 
   private safeRemove(key: string) {
       try {
-          if (this.driver === 'file' && typeof window !== 'undefined') {
+          if (this.driver === 'file' && this.isStorageAvailable) {
               window.localStorage.removeItem(key);
           }
       } catch (e) {

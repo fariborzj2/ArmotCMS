@@ -1,9 +1,7 @@
-
 import React from 'react';
-import { useSearchParams, Link, useParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
-import { Search } from 'lucide-react';
-import { Card } from '../../../components/ui/Card';
+import { PostCard } from '../../../components/blog/PostCard';
 
 export const BlogSearch = () => {
   // Support both /blog/search?q=query and /blog/search=:query
@@ -20,22 +18,17 @@ export const BlogSearch = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-7xl mx-auto px-4 py-12">
        <div className="text-center mb-12">
            <h1 className="text-3xl font-bold dark:text-white mb-2">{t('search_results')}</h1>
            <p className="text-gray-500 text-xl">"{decodeURIComponent(query)}"</p>
        </div>
 
-       <div className="space-y-6">
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
            {results.map(post => (
-               <Link key={post.id} to={`/blog/post/${post.id}-${post.slug}`}>
-                   <Card className="hover:border-primary-500 transition-colors">
-                       <h3 className="text-xl font-bold dark:text-white mb-2">{post.title}</h3>
-                       <p className="text-gray-500">{post.excerpt}</p>
-                   </Card>
-               </Link>
+               <PostCard key={post.id} post={post} />
            ))}
-           {results.length === 0 && <p className="text-center text-gray-500">{t('no_results')}</p>}
+           {results.length === 0 && <p className="col-span-3 text-center text-gray-500">{t('no_results')}</p>}
        </div>
     </div>
   );

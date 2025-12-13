@@ -207,6 +207,7 @@ export const TRANSLATIONS: Translation = {
   border_radius: { fa: 'گردی گوشه‌ها', en: 'Border Radius' },
   font_family: { fa: 'فونت', en: 'Font Family' },
   layout_density: { fa: 'تراکم چیدمان', en: 'Layout Density' },
+  ui_gap: { fa: 'فاصله اجزا (Gap)', en: 'Gap Spacing' },
   preview: { fa: 'پیش‌نمایش', en: 'Preview' },
   apply_changes: { fa: 'اعمال تغییرات', en: 'Apply Changes' },
   radius_sm: { fa: 'کم', en: 'Small' },
@@ -215,6 +216,9 @@ export const TRANSLATIONS: Translation = {
   radius_full: { fa: 'گرد', en: 'Full' },
   density_compact: { fa: 'فشرده', en: 'Compact' },
   density_comfortable: { fa: 'راحت', en: 'Comfortable' },
+  gap_compact: { fa: 'فشرده', en: 'Compact' },
+  gap_normal: { fa: 'عادی', en: 'Normal' },
+  gap_wide: { fa: 'عریض', en: 'Wide' },
   font_estedad: { fa: 'استعداد', en: 'Estedad' },
   font_vazir: { fa: 'وزیر متن', en: 'Vazirmatn' },
   font_inter: { fa: 'اینتر (انگلیسی)', en: 'Inter' },
@@ -655,6 +659,7 @@ export const INITIAL_CONFIG = {
   contactAddress: 'تهران، خیابان ولیعصر، برج فناوری',
   seoTitleSeparator: '|',
   enableSitemap: true,
+  uiGap: 'normal',
 };
 
 export const INITIAL_SMART_CONFIG = {

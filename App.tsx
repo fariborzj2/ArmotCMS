@@ -63,14 +63,23 @@ const AppRoutes = () => {
     const currentRadius = radiusSettings[config.uiRadius || 'md'];
     root.style.setProperty('--radius-base', currentRadius);
 
-    // 3. Density (Experimental scaling)
+    // 3. Gap Spacing
+    const gapSettings = {
+        'compact': '1rem',  // 16px
+        'normal': '1.5rem', // 24px
+        'wide': '2rem'      // 32px
+    };
+    const currentGap = gapSettings[config.uiGap || 'normal'];
+    root.style.setProperty('--app-gap', currentGap);
+
+    // 4. Density (Experimental scaling)
     if (config.uiDensity === 'compact') {
         root.style.fontSize = '14px'; // Slightly smaller base
     } else {
         root.style.fontSize = '16px'; // Default
     }
 
-    // 4. Primary Color
+    // 5. Primary Color
     const colorPalettes: Record<string, any> = {
       sky: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
       blue: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' },

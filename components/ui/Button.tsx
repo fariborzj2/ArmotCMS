@@ -15,23 +15,23 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props 
 }) => {
-  const baseStyle = "font-bold transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transform";
+  const baseStyle = "font-bold transition-all duration-200 flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transform";
   
-  // App-like rounded corners (full pill)
-  const radius = "rounded-2xl";
+  // Standardized Radius: rounded-xl (12px)
+  const radius = "rounded-xl";
 
   const sizes = {
-    sm: "px-4 py-2 text-xs",
-    md: "px-6 py-3 text-sm",
-    lg: "px-8 py-4 text-base",
-    icon: "p-3 aspect-square"
+    sm: "px-3 py-1.5 text-xs h-8",
+    md: "px-5 py-2.5 text-sm h-11",
+    lg: "px-8 py-3 text-base h-12",
+    icon: "p-2.5 w-11 h-11"
   };
   
   const variants = {
-    primary: "bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/30 focus:ring-primary-500 border border-transparent",
+    primary: "bg-primary-600 hover:bg-primary-700 text-white shadow-sm hover:shadow-md border border-transparent",
     secondary: "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 shadow-sm",
-    outline: "bg-transparent border-2 border-primary-500 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20",
-    danger: "bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 border border-transparent hover:border-red-200 focus:ring-red-500",
+    outline: "bg-transparent border border-primary-500 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20",
+    danger: "bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 border border-transparent hover:border-red-200",
     ghost: "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
   };
 

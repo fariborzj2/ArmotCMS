@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { Card } from '../../components/ui/Card';
-import { Layout, Check, Palette, Monitor, Smartphone, Type, Grid, Square } from 'lucide-react';
+import { Layout, Check, Palette, Monitor, Smartphone, Type, Grid, Square, Maximize } from 'lucide-react';
 import { LayoutTheme } from '../../types';
 
 export const ThemeManager = () => {
   const { t, config, updateConfig } = useApp();
   const [selectedRadius, setSelectedRadius] = useState(config.uiRadius || 'md');
+  const [selectedGap, setSelectedGap] = useState(config.uiGap || 'normal');
   const [selectedFont, setSelectedFont] = useState(config.uiFont || 'estedad');
   const [layoutDensity, setLayoutDensity] = useState(config.uiDensity || 'comfortable');
   const [selectedColor, setSelectedColor] = useState(config.uiPrimaryColor || 'sky');
@@ -22,6 +23,7 @@ export const ThemeManager = () => {
         uiRadius: selectedRadius as any,
         uiFont: selectedFont as any,
         uiDensity: layoutDensity as any,
+        uiGap: selectedGap as any,
         uiPrimaryColor: selectedColor as any
     });
     alert(t('success'));
@@ -157,7 +159,7 @@ export const ThemeManager = () => {
                     ].map((c) => (
                         <button 
                             key={c.name}
-                            onClick={() => setSelectedColor(c.name)}
+                            onClick={() => setSelectedColor(c.name as any)}
                             className={`${c.class} w-10 h-10 rounded-xl transition-all shadow-sm focus:outline-none flex items-center justify-center ${selectedColor === c.name ? 'ring-2 ring-offset-2 ring-primary-500 dark:ring-offset-gray-900 scale-110' : 'hover:scale-105'}`}
                             aria-label={c.name}
                         >
@@ -190,26 +192,25 @@ export const ThemeManager = () => {
                 </div>
             </div>
 
-            {/* Font Family */}
+            {/* Gap Settings */}
             <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <Type size={16} className="text-gray-400" />
-                    {t('font_family')}
+                    <Maximize size={16} className="text-gray-400" />
+                    {t('ui_gap')}
                 </label>
-                <div className="space-y-2">
-                    {(['estedad', 'vazir', 'inter'] as const).map((f) => (
-                        <div 
-                            key={f} 
-                            onClick={() => setSelectedFont(f)}
-                            className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
-                                selectedFont === f 
-                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300' 
-                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                    {(['compact', 'normal', 'wide'] as const).map((g) => (
+                        <button
+                            key={g}
+                            onClick={() => setSelectedGap(g)}
+                            className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${
+                                selectedGap === g 
+                                ? 'bg-white dark:bg-gray-700 text-primary-600 shadow-sm' 
+                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                             }`}
                         >
-                            <span className="text-sm font-medium">{t(`font_${f}`)}</span>
-                            {selectedFont === f && <Check size={16} className="text-primary-500" />}
-                        </div>
+                            {t(`gap_${g}`)}
+                        </button>
                     ))}
                 </div>
             </div>
@@ -233,6 +234,30 @@ export const ThemeManager = () => {
                         >
                             {t(`density_${d}`)}
                         </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Font Family */}
+            <div className="lg:col-span-2">
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                    <Type size={16} className="text-gray-400" />
+                    {t('font_family')}
+                </label>
+                <div className="space-y-2">
+                    {(['estedad', 'vazir', 'inter'] as const).map((f) => (
+                        <div 
+                            key={f} 
+                            onClick={() => setSelectedFont(f)}
+                            className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                                selectedFont === f 
+                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300' 
+                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                            }`}
+                        >
+                            <span className="text-sm font-medium">{t(`font_${f}`)}</span>
+                            {selectedFont === f && <Check size={16} className="text-primary-500" />}
+                        </div>
                     ))}
                 </div>
             </div>

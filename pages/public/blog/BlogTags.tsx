@@ -1,10 +1,8 @@
-
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../../../context/AppContext';
-import { Card } from '../../../components/ui/Card';
 import { Tag } from 'lucide-react';
+import { PostCard } from '../../../components/blog/PostCard';
 
 export const BlogTags = () => {
   const { tag } = useParams<{ tag: string }>();
@@ -27,12 +25,7 @@ export const BlogTags = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {tagPosts.map(post => (
-                    <Link key={post.id} to={`/blog/post/${post.id}-${post.slug}`} className="group">
-                        <Card className="h-full hover:shadow-lg transition-shadow">
-                            <h3 className="font-bold text-lg dark:text-white group-hover:text-primary-600 mb-2">{post.title}</h3>
-                            <p className="text-gray-500 text-sm line-clamp-3">{post.excerpt}</p>
-                        </Card>
-                    </Link>
+                    <PostCard key={post.id} post={post} />
                 ))}
                 {tagPosts.length === 0 && <p className="col-span-3 text-center text-gray-500">{t('no_results')}</p>}
               </div>
@@ -51,7 +44,7 @@ export const BlogTags = () => {
               <Link 
                 key={t} 
                 to={`/blog/tags/${t}`}
-                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-3 rounded-full text-lg hover:bg-primary-500 hover:text-white transition-all shadow-sm"
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-6 py-3 rounded-full text-lg hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 transition-all shadow-sm"
               >
                   {t}
               </Link>
