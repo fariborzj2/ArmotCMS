@@ -536,7 +536,7 @@ export const MOCK_PLUGINS: Plugin[] = [
     description: 'ماژول کامل فروشگاهی با پشتیبانی از محصولات فیزیکی و دیجیتال.',
     version: '1.0.0',
     author: 'تیم آرموت',
-    active: false, // Changed to false so user can activate it manually
+    active: true,
     installed: true,
     type: 'extension',
   }
@@ -694,9 +694,10 @@ export const MOCK_MESSAGES: ContactMessage[] = [
 
 export const MOCK_MENUS: MenuItem[] = [
   { id: '1', label: { fa: 'خانه', en: 'Home' }, url: '/', order: 1, location: 'header', icon: 'Home' },
-  { id: '2', label: { fa: 'وبلاگ', en: 'Blog' }, url: '/blog', order: 2, location: 'header', icon: 'PenTool' },
-  { id: '3', label: { fa: 'درباره ما', en: 'About' }, url: '/about', order: 3, location: 'header', icon: 'Info' },
-  { id: '4', label: { fa: 'تماس با ما', en: 'Contact' }, url: '/contact', order: 4, location: 'header', icon: 'Phone' },
+  { id: '7', label: { fa: 'فروشگاه', en: 'Store' }, url: '/shop', order: 2, location: 'header', icon: 'ShoppingBag' },
+  { id: '2', label: { fa: 'وبلاگ', en: 'Blog' }, url: '/blog', order: 3, location: 'header', icon: 'PenTool' },
+  { id: '3', label: { fa: 'درباره ما', en: 'About' }, url: '/about', order: 4, location: 'header', icon: 'Info' },
+  { id: '4', label: { fa: 'تماس با ما', en: 'Contact' }, url: '/contact', order: 5, location: 'header', icon: 'Phone' },
   { id: '5', label: { fa: 'قوانین', en: 'Terms' }, url: '/terms', order: 1, location: 'footer' },
   { id: '6', label: { fa: 'سوالات متداول', en: 'FAQ' }, url: '/faq', order: 2, location: 'footer' },
 ];
