@@ -95,7 +95,18 @@ export const storage = {
 
   getPlugins: (): Plugin[] => {
     const data = safeStorage.getItem(KEYS.PLUGINS);
-    return data ? JSON.parse(data) : MOCK_PLUGINS;
+    if (!data) return MOCK_PLUGINS;
+
+    const storedPlugins: Plugin[] = JSON.parse(data);
+    // Merge Strategy: Add new mock plugins that are missing from storage
+    // This ensures new features appear even for existing users
+    const merged = [...storedPlugins];
+    MOCK_PLUGINS.forEach(mockP => {
+        if (!storedPlugins.find(p => p.id === mockP.id)) {
+            merged.push(mockP);
+        }
+    });
+    return merged;
   },
 
   savePlugins: (plugins: Plugin[]) => {
@@ -167,7 +178,17 @@ export const storage = {
 
   getMenus: (): MenuItem[] => {
     const data = safeStorage.getItem(KEYS.MENUS);
-    return data ? JSON.parse(data) : MOCK_MENUS;
+    if (!data) return MOCK_MENUS;
+
+    const storedMenus: MenuItem[] = JSON.parse(data);
+    // Merge Strategy: Add new mock menus that are missing from storage
+    const merged = [...storedMenus];
+    MOCK_MENUS.forEach(mockM => {
+        if (!storedMenus.find(m => m.id === mockM.id)) {
+            merged.push(mockM);
+        }
+    });
+    return merged;
   },
 
   saveMenus: (menus: MenuItem[]) => {
